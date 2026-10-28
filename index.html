@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Phrase Guard 3.6</title>
+  <style>:root{--bg:#0f0f13;--card:#1a1a22;--primary:#7c5cfc;--text:#f0f0f5;--muted:#9a9aab;--success:#22c55e;--error:#ef4444;--border:#2a2a35;--encrypt:#0ea5e9;--decrypt:#8b5cf6;--generate:#10b981;}*{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;}body{background:var(--bg);color:var(--text);min-height:100vh;padding:16px;line-height:1.6;}.container{max-width:480px;margin:0 auto;}header{text-align:center;margin-bottom:22px;}header h1{font-size:1.55rem;font-weight:700;background:linear-gradient(135deg,#a78bfa,#7c5cfc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:4px;}header p{color:var(--muted);font-size:0.88rem;}.tabs{display:flex;gap:6px;margin-bottom:18px;background:var(--card);padding:5px;border-radius:14px;border:1px solid var(--border);}.tab{flex:1;text-align:center;padding:11px 6px;border-radius:10px;font-weight:600;font-size:0.88rem;cursor:pointer;color:var(--muted);border:none;background:transparent;}.tab.active{background:var(--primary);color:white;}.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:18px;margin-bottom:14px;}label{display:block;font-size:0.82rem;color:var(--muted);margin-bottom:8px;font-weight:500;}textarea{width:100%;background:#121218;border:1px solid var(--border);border-radius:12px;color:var(--text);padding:14px;font-size:0.92rem;resize:vertical;outline:none;min-height:100px;}textarea:focus{border-color:var(--primary);}.ltr{direction:ltr;text-align:left;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;font-size:0.84rem;}.btn{display:block;width:100%;border:none;border-radius:12px;padding:15px;font-size:1.02rem;font-weight:600;cursor:pointer;margin-top:6px;color:white;}.btn:active{transform:scale(0.98);}.btn-encrypt{background:var(--encrypt);}.btn-decrypt{background:var(--decrypt);}.btn-generate{background:var(--generate);}.btn:disabled{opacity:0.55;cursor:not-allowed;}.result{display:none;margin-top:6px;}.result.show{display:block;}.result.success .box{border-color:var(--success);background:rgba(34,197,94,0.09);}.result.error .box{border-color:var(--error);background:rgba(239,68,68,0.09);}.box{border:1px solid var(--border);border-radius:12px;padding:14px;word-break:break-word;white-space:pre-wrap;font-size:0.98rem;line-height:1.65;}.result-title{font-size:0.78rem;color:var(--muted);margin-bottom:8px;}.actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;}.action-btn{flex:1;min-width:100px;background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:10px;padding:10px;font-size:0.82rem;cursor:pointer;}.action-btn:active{background:#2a2a35;}footer{text-align:center;margin-top:28px;color:var(--muted);font-size:0.72rem;}.spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,0.3);border-radius:50%;border-top-color:white;animation:spin 0.7s linear infinite;margin-right:8px;vertical-align:middle;}@keyframes spin{to{transform:rotate(360deg);}}.panel{display:none;}.panel.active{display:block;}.hint{font-size:0.78rem;color:var(--muted);margin-top:10px;line-height:1.5;}.word-list{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;}.word{background:#121218;border:1px solid var(--border);border-radius:8px;padding:6px 10px;font-size:0.85rem;direction:ltr;}.count-label{display:block;margin:0 0 10px;font-weight:700;color:var(--text,inherit);}.word-count-picker{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:8px;}.count-option{appearance:none;border:1px solid var(--border,#d7dce3);border-radius:14px;background:var(--card,rgba(127,127,127,.04));color:inherit;min-height:76px;padding:12px 8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;transition:border-color .18s ease,background .18s ease,transform .18s ease,box-shadow .18s ease;}.count-option:hover{border-color:var(--accent,#6477db);transform:translateY(-1px);}.count-option:focus-visible{outline:3px solid rgba(100,119,219,.28);outline-offset:2px;}.count-option.is-selected{border:2px solid var(--accent,#6477db);background:var(--accent-soft,rgba(100,119,219,.11));box-shadow:0 0 0 3px rgba(100,119,219,.08);}.count-number{font-size:1.35rem;line-height:1.2;font-weight:800;font-variant-numeric:tabular-nums;}.count-unit{font-size:.82rem;opacity:.8;}.count-help{margin:0 0 14px;font-size:.82rem;line-height:1.7;opacity:.72;}@media (max-width:380px){.word-count-picker{gap:6px;}.count-option{min-height:68px;border-radius:11px;}}.key-mode-picker{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:0 0 12px;}.mode-option{appearance:none;border:1px solid var(--border,#d7dce3);border-radius:14px;background:var(--card,rgba(127,127,127,.04));color:inherit;min-height:76px;padding:12px 10px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;cursor:pointer;transition:border-color .18s ease,background .18s ease,transform .18s ease,box-shadow .18s ease;}.mode-option:hover{border-color:var(--accent,#6477db);transform:translateY(-1px);}.mode-option:focus-visible{outline:3px solid rgba(100,119,219,.28);outline-offset:2px;}.mode-option.is-selected{border:2px solid var(--accent,#6477db);background:var(--accent-soft,rgba(100,119,219,.11));box-shadow:0 0 0 3px rgba(100,119,219,.08);}.mode-title{font-weight:800;font-size:.98rem;}.mode-subtitle{font-size:.78rem;opacity:.72;}.mode-panel{border:1px solid var(--border,#d7dce3);border-radius:12px;padding:12px;margin-bottom:14px;font-size:.88rem;line-height:1.8;}.mode-panel[hidden]{display:none !important;}.mode-panel input{width:100%;box-sizing:border-box;border:1px solid var(--border,#d7dce3);border-radius:10px;background:var(--input,transparent);color:inherit;padding:12px;font:inherit;}.mode-panel input:focus{outline:2px solid rgba(100,119,219,.3);border-color:var(--accent,#6477db);}[hidden]{display:none !important;}
+.chat-shell{border:1px solid var(--border);border-radius:18px;overflow:hidden;background:#101923;margin-bottom:14px;box-shadow:0 12px 35px #0003}.chat-head{display:flex;align-items:center;gap:11px;padding:14px;background:#202d3b;border-bottom:1px solid #344253}.avatar{width:44px;height:44px;flex-shrink:0;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,#087ee1,#5740dc);font-size:1.35rem}.chat-head strong{display:block;font-size:1rem}.chat-head small{display:block;color:#a9bacb;font-size:.76rem}.lock-pill{margin-right:auto;font-size:.68rem;color:#9ce6bd;border:1px solid #326b55;border-radius:20px;padding:4px 7px;white-space:nowrap}.keybar{position:relative;background:#182431;padding:12px;border-bottom:1px solid #344253}.keybar label{margin-bottom:5px;color:#c4d2df}.key-input-row{display:flex;align-items:stretch;gap:8px}.keybar input{width:100%;min-width:0;flex:1;border:1px solid #415266;border-radius:10px;background:#0e1721;color:#fff;padding:12px;direction:ltr;text-align:left}.key-clear{position:static;flex-shrink:0;background:#29394a;border:1px solid #415266;border-radius:9px;color:#dce8f3;padding:8px 10px;font-size:.76rem;cursor:pointer}.keybar p{color:#9dafc0;font-size:.72rem;margin-top:7px}.chat-log{min-height:250px;max-height:48vh;overflow-y:auto;padding:15px 12px;display:flex;flex-direction:column;gap:12px;background-color:#0f1b28;background-image:radial-gradient(#243648 1px,transparent 1px);background-size:18px 18px}.chat-welcome{margin:auto;text-align:center;color:#aebdcb;font-size:1.8rem;padding:25px 10px}.chat-welcome strong{font-size:.95rem;color:#e5edf5}.chat-welcome p{font-size:.78rem;margin-top:5px}.bubble{max-width:94%;align-self:flex-start;background:#243748;border:1px solid #354b5d;border-radius:14px 14px 14px 4px;padding:11px;color:#f1f6fa;overflow-wrap:anywhere;white-space:pre-wrap}.bubble.outgoing{align-self:flex-end;background:#075e54;border-color:#087568;border-radius:14px 14px 4px 14px}.bubble.error{background:#48252b;border-color:#85404b}.bubble-title{font-size:.75rem;color:#b9d7e8;margin-bottom:7px}.bubble-content{direction:ltr;text-align:left;font-family:ui-monospace,monospace;font-size:.76rem;max-height:130px;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere}.bubble-actions{display:flex;gap:6px;margin-top:9px}.bubble-actions button{background:#142632;border:1px solid #496171;color:#e2edf5;border-radius:8px;padding:7px 9px;font-size:.72rem}.composer{display:flex;align-items:flex-end;gap:7px;padding:10px;background:#202d3b;border-top:1px solid #344253}.composer textarea{min-height:42px;max-height:120px;resize:vertical;flex:1;background:#111d29;border-color:#405264;border-radius:18px;padding:11px 13px;color:white}.attach-btn{display:grid;place-items:center;width:40px;height:42px;border-radius:50%;background:#314457;color:white;font-size:1.3rem;cursor:pointer;margin:0}.send-btn{width:42px;height:42px;flex-shrink:0;border:0;border-radius:50%;background:#0788e8;color:white;font-size:1.3rem;cursor:pointer}.decrypt-send{background:#8255df}.file-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;background:#182431;padding:9px 12px}.file-row span{font-size:.72rem;color:#b5c4d2;flex:1;min-width:100px;overflow-wrap:anywhere}.file-row .action-btn{min-width:0;flex:0 0 auto;padding:8px;font-size:.72rem}.chat-shell .hint{padding:0 12px 12px;color:#aab9c7}.panel#panel-generate{margin-bottom:20px}
+</style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Phrase Guard</h1>
+      <p>ساخت کلید • رمزنگاری • رمزگشایی</p>
+    </header>
+
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('encrypt')">🔒 چت رمزگذاری</button>
+      <button class="tab" onclick="switchTab('decrypt')">🔓 چت رمزگشایی</button>
+      <button class="tab" onclick="switchTab('generate')">ساخت کلید</button>
+    </div>
+
+    <!-- GENERATE -->
+    <div class="panel" id="panel-generate">
+      <div class="card">
+        <p style="color:var(--muted); font-size:0.9rem; margin-bottom:14px;">
+          تعداد کلمات کلید را انتخاب کنید. کلید با مولد تصادفی امن مرورگر ساخته می‌شود؛ آن را فقط از طریق کانال امن به اشتراک بگذارید.
+        </p>
+        <label class="count-label" for="wordCount">تعداد کلمات کلید</label>
+        <div class="word-count-picker" role="radiogroup" aria-label="انتخاب تعداد کلمات کلید">
+          <button type="button" class="count-option is-selected" role="radio" aria-checked="true" data-count="12" onclick="selectWordCount(12)">
+            <span class="count-number">۱۲</span><span class="count-unit">کلمه</span>
+          </button>
+          <button type="button" class="count-option" role="radio" aria-checked="false" data-count="24" onclick="selectWordCount(24)">
+            <span class="count-number">۲۴</span><span class="count-unit">کلمه</span>
+          </button>
+        </div>
+        <select id="wordCount" aria-label="تعداد کلمات کلید" style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;" tabindex="-1">
+          <option value="12" selected>۱۲ کلمه</option>
+          <option value="24">۲۴ کلمه</option>
+        </select>
+        <p class="count-help" id="countHelp">تعداد بیشتر، کلید طولانی‌تری می‌سازد که نگهداری و واردکردنش زمان بیشتری می‌برد.</p>
+
+        <label class="count-label">روش ساخت کلید</label>
+        <div class="key-mode-picker" role="radiogroup" aria-label="روش ساخت کلید">
+          <button type="button" class="mode-option is-selected" role="radio" aria-checked="true" data-mode="random" onclick="selectKeyMode('random')">
+            <span class="mode-title">کلمات تصادفی</span>
+            <span class="mode-subtitle">۱۲ یا ۲۴ کلمهٔ BIP-39</span>
+          </button>
+          <button type="button" class="mode-option" role="radio" aria-checked="false" data-mode="custom" onclick="selectKeyMode('custom')">
+            <span class="mode-title">رمز دلخواه</span>
+            <span class="mode-subtitle">انتخاب رمز توسط شما</span>
+          </button>
+        </div>
+
+        <div id="randomModeHelp" class="mode-panel">
+          فهرست رسمی ۲۰۴۸ کلمه‌ای BIP-39 داخل همین فایل قرار دارد؛ ساخت کلید به اینترنت نیاز ندارد. کلید تولیدشده را خارج از این صفحه و در مکانی امن نگه‌دار.
+        </div>
+        <div id="customModeFields" class="mode-panel" hidden>
+          <label for="customPassword">رمز دلخواه</label>
+          <input id="customPassword" type="password" class="ltr" autocomplete="new-password" placeholder="یک رمز قوی وارد کنید" />
+          <label for="customPasswordConfirm" style="margin-top:12px;">تکرار رمز دلخواه</label>
+          <input id="customPasswordConfirm" type="password" class="ltr" autocomplete="new-password" placeholder="رمز را دوباره وارد کنید" />
+          <p class="count-help">رمزی طولانی و غیرقابل‌حدس انتخاب کن؛ اگر آن را فراموش کنی، پیام‌های رمز‌شده با آن قابل بازیابی نیستند.</p>
+        </div>
+
+        <button class="btn btn-generate" id="generateBtn" onclick="doGenerate()">ساخت کلید جدید</button>
+      </div>
+      <div class="result" id="genResult">
+        <div class="card">
+          <div class="result-title">✅ کلید شما:</div>
+          <div class="box ltr" id="genResultBox" style="direction:ltr; text-align:left; font-size:1.05rem;"></div>
+          <div class="word-list" id="wordList"></div>
+          <div class="actions">
+            <button class="action-btn" onclick="copyText('genResultBox')">کپی کردن</button>
+            <button class="action-btn" onclick="shareText('genResultBox')">اشتراک‌گذاری</button>
+            <button class="action-btn" onclick="useAsKey()">استفاده به عنوان کلید</button>
+          </div>
+          <p class="hint">هر کسی که این کلید را داشته باشد می‌تواند پیام‌های شما را بخواند. آن را امن نگه دارید.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ENCRYPT -->
+    <div class="panel active" id="panel-encrypt">
+      <div class="chat-shell">
+        <div class="chat-head"><div class="avatar">🔒</div><div><strong>چت رمزگذاری</strong><small>متن و فایل را به خروجی رمز‌شده تبدیل کن</small></div><span class="lock-pill">محلی و امن</span></div>
+        <div class="keybar"><label for="encKey">کلید / عبارت بازیابی</label><div class="key-input-row"><input id="encKey" type="password" autocomplete="off" placeholder="کلید را وارد کن"/><button type="button" class="key-clear" onclick="clearSecret('encKey')">پاک‌کردن کلید</button></div><p>برای همهٔ پیام‌ها و فایل‌های این نشست از همین کلید استفاده می‌شود. کلید ذخیره نمی‌شود.</p></div>
+        <div class="chat-log" id="encChatMessages"><div class="chat-welcome">🔐<br><strong>آمادهٔ رمزگذاری</strong><p>پیامت را بنویس یا یک فایل انتخاب کن.</p></div></div>
+        <div class="composer"><label class="attach-btn" for="encChatFile" title="انتخاب فایل">📎</label><input id="encChatFile" type="file" hidden/><textarea id="encChatInput" rows="1" placeholder="پیام بنویس…"></textarea><button class="send-btn" onclick="sendEncryptedChat()" aria-label="رمزگذاری و ارسال">➤</button></div>
+        <div class="file-row"><span id="encChatFileName">فایلی انتخاب نشده</span><button class="action-btn" onclick="clearSelectedEncFile()">لغو پیوست</button><button class="action-btn" onclick="clearVisibleChat('encChatMessages')">پاک‌کردن نمایش</button></div>
+        <p class="hint">خروجی‌ها در همین صفحه نمایش داده می‌شوند؛ برای فرستادنشان در پیام‌رسان دیگر از دکمهٔ کپی یا دانلود استفاده کن.</p>
+      </div>
+    </div>
+
+    <div class="panel" id="panel-decrypt">
+      <div class="chat-shell decrypt-shell">
+        <div class="chat-head"><div class="avatar">🔓</div><div><strong>چت رمزگشایی</strong><small>پیام یا فایل رمز‌شده را وارد کن</small></div><span class="lock-pill">محلی و امن</span></div>
+        <div class="keybar"><label for="decKey">کلید / عبارت بازیابی</label><div class="key-input-row"><input id="decKey" type="password" autocomplete="off" placeholder="کلید پیام را وارد کن"/><button type="button" class="key-clear" onclick="clearSecret('decKey')">پاک‌کردن کلید</button></div><p>کلید باید دقیقاً با کلید زمان رمزگذاری یکی باشد.</p></div>
+        <div class="chat-log" id="decChatMessages"><div class="chat-welcome">📨<br><strong>پیام رمز‌شده را دریافت کن</strong><p>متن رمز‌شده را پایین بچسبان یا فایل .pgf/.txt را انتخاب کن.</p></div></div>
+        <div class="composer"><label class="attach-btn" for="decChatFile" title="انتخاب فایل رمز‌شده">📎</label><input id="decChatFile" type="file" hidden/><textarea id="decChatInput" rows="1" placeholder="متن رمز‌شده را اینجا بچسبان…"></textarea><button class="send-btn decrypt-send" onclick="receiveEncryptedChat()" aria-label="رمزگشایی و ارسال">➤</button></div>
+        <div class="file-row"><span id="decChatFileName">فایلی انتخاب نشده</span><button class="action-btn" onclick="clearSelectedDecFile()">لغو پیوست</button><button class="action-btn" onclick="clearVisibleChat('decChatMessages')">پاک‌کردن نمایش</button></div>
+        <p class="hint">پیام‌های متنی بازیابی‌شده در چت نشان داده می‌شوند؛ فایل‌های بازیابی‌شده با نام اصلی دانلود می‌شوند.</p>
+      </div>
+    </div>
+
+    <footer>Phrase Guard • پردازش محلی در مرورگر • نسخه ۳.۱۰</footer>
+  </div>
+
+<script>const _0 = new TextEncoder().encode("PhraseGuard-v2.2-Salt!");
+const _1 = 250000;
+const _2 = 12;
+const _3 = 16;
+const _4 = "pg1:";
+const _5 = "pg2:";
+const WORDLIST = new TextDecoder().decode(Uint8Array.from(atob("YWJhbmRvbiBhYmlsaXR5IGFibGUgYWJvdXQgYWJvdmUgYWJzZW50IGFic29yYiBhYnN0cmFjdCBhYnN1cmQgYWJ1c2UgYWNjZXNzIGFjY2lkZW50IGFjY291bnQgYWNjdXNlIGFjaGlldmUgYWNpZCBhY291c3RpYyBhY3F1aXJlIGFjcm9zcyBhY3QgYWN0aW9uIGFjdG9yIGFjdHJlc3MgYWN0dWFsIGFkYXB0IGFkZCBhZGRpY3QgYWRkcmVzcyBhZGp1c3QgYWRtaXQgYWR1bHQgYWR2YW5jZSBhZHZpY2UgYWVyb2JpYyBhZmZhaXIgYWZmb3JkIGFmcmFpZCBhZ2FpbiBhZ2UgYWdlbnQgYWdyZWUgYWhlYWQgYWltIGFpciBhaXJwb3J0IGFpc2xlIGFsYXJtIGFsYnVtIGFsY29ob2wgYWxlcnQgYWxpZW4gYWxsIGFsbGV5IGFsbG93IGFsbW9zdCBhbG9uZSBhbHBoYSBhbHJlYWR5IGFsc28gYWx0ZXIgYWx3YXlzIGFtYXRldXIgYW1hemluZyBhbW9uZyBhbW91bnQgYW11c2VkIGFuYWx5c3QgYW5jaG9yIGFuY2llbnQgYW5nZXIgYW5nbGUgYW5ncnkgYW5pbWFsIGFua2xlIGFubm91bmNlIGFubnVhbCBhbm90aGVyIGFuc3dlciBhbnRlbm5hIGFudGlxdWUgYW54aWV0eSBhbnkgYXBhcnQgYXBvbG9neSBhcHBlYXIgYXBwbGUgYXBwcm92ZSBhcHJpbCBhcmNoIGFyY3RpYyBhcmVhIGFyZW5hIGFyZ3VlIGFybSBhcm1lZCBhcm1vciBhcm15IGFyb3VuZCBhcnJhbmdlIGFycmVzdCBhcnJpdmUgYXJyb3cgYXJ0IGFydGVmYWN0IGFydGlzdCBhcnR3b3JrIGFzayBhc3BlY3QgYXNzYXVsdCBhc3NldCBhc3Npc3QgYXNzdW1lIGFzdGhtYSBhdGhsZXRlIGF0b20gYXR0YWNrIGF0dGVuZCBhdHRpdHVkZSBhdHRyYWN0IGF1Y3Rpb24gYXVkaXQgYXVndXN0IGF1bnQgYXV0aG9yIGF1dG8gYXV0dW1uIGF2ZXJhZ2UgYXZvY2FkbyBhdm9pZCBhd2FrZSBhd2FyZSBhd2F5IGF3ZXNvbWUgYXdmdWwgYXdrd2FyZCBheGlzIGJhYnkgYmFjaGVsb3IgYmFjb24gYmFkZ2UgYmFnIGJhbGFuY2UgYmFsY29ueSBiYWxsIGJhbWJvbyBiYW5hbmEgYmFubmVyIGJhciBiYXJlbHkgYmFyZ2FpbiBiYXJyZWwgYmFzZSBiYXNpYyBiYXNrZXQgYmF0dGxlIGJlYWNoIGJlYW4gYmVhdXR5IGJlY2F1c2UgYmVjb21lIGJlZWYgYmVmb3JlIGJlZ2luIGJlaGF2ZSBiZWhpbmQgYmVsaWV2ZSBiZWxvdyBiZWx0IGJlbmNoIGJlbmVmaXQgYmVzdCBiZXRyYXkgYmV0dGVyIGJldHdlZW4gYmV5b25kIGJpY3ljbGUgYmlkIGJpa2UgYmluZCBiaW9sb2d5IGJpcmQgYmlydGggYml0dGVyIGJsYWNrIGJsYWRlIGJsYW1lIGJsYW5rZXQgYmxhc3QgYmxlYWsgYmxlc3MgYmxpbmQgYmxvb2QgYmxvc3NvbSBibG91c2UgYmx1ZSBibHVyIGJsdXNoIGJvYXJkIGJvYXQgYm9keSBib2lsIGJvbWIgYm9uZSBib251cyBib29rIGJvb3N0IGJvcmRlciBib3JpbmcgYm9ycm93IGJvc3MgYm90dG9tIGJvdW5jZSBib3ggYm95IGJyYWNrZXQgYnJhaW4gYnJhbmQgYnJhc3MgYnJhdmUgYnJlYWQgYnJlZXplIGJyaWNrIGJyaWRnZSBicmllZiBicmlnaHQgYnJpbmcgYnJpc2sgYnJvY2NvbGkgYnJva2VuIGJyb256ZSBicm9vbSBicm90aGVyIGJyb3duIGJydXNoIGJ1YmJsZSBidWRkeSBidWRnZXQgYnVmZmFsbyBidWlsZCBidWxiIGJ1bGsgYnVsbGV0IGJ1bmRsZSBidW5rZXIgYnVyZGVuIGJ1cmdlciBidXJzdCBidXMgYnVzaW5lc3MgYnVzeSBidXR0ZXIgYnV5ZXIgYnV6eiBjYWJiYWdlIGNhYmluIGNhYmxlIGNhY3R1cyBjYWdlIGNha2UgY2FsbCBjYWxtIGNhbWVyYSBjYW1wIGNhbiBjYW5hbCBjYW5jZWwgY2FuZHkgY2Fubm9uIGNhbm9lIGNhbnZhcyBjYW55b24gY2FwYWJsZSBjYXBpdGFsIGNhcHRhaW4gY2FyIGNhcmJvbiBjYXJkIGNhcmdvIGNhcnBldCBjYXJyeSBjYXJ0IGNhc2UgY2FzaCBjYXNpbm8gY2FzdGxlIGNhc3VhbCBjYXQgY2F0YWxvZyBjYXRjaCBjYXRlZ29yeSBjYXR0bGUgY2F1Z2h0IGNhdXNlIGNhdXRpb24gY2F2ZSBjZWlsaW5nIGNlbGVyeSBjZW1lbnQgY2Vuc3VzIGNlbnR1cnkgY2VyZWFsIGNlcnRhaW4gY2hhaXIgY2hhbGsgY2hhbXBpb24gY2hhbmdlIGNoYW9zIGNoYXB0ZXIgY2hhcmdlIGNoYXNlIGNoYXQgY2hlYXAgY2hlY2sgY2hlZXNlIGNoZWYgY2hlcnJ5IGNoZXN0IGNoaWNrZW4gY2hpZWYgY2hpbGQgY2hpbW5leSBjaG9pY2UgY2hvb3NlIGNocm9uaWMgY2h1Y2tsZSBjaHVuayBjaHVybiBjaWdhciBjaW5uYW1vbiBjaXJjbGUgY2l0aXplbiBjaXR5IGNpdmlsIGNsYWltIGNsYXAgY2xhcmlmeSBjbGF3IGNsYXkgY2xlYW4gY2xlcmsgY2xldmVyIGNsaWNrIGNsaWVudCBjbGlmZiBjbGltYiBjbGluaWMgY2xpcCBjbG9jayBjbG9nIGNsb3NlIGNsb3RoIGNsb3VkIGNsb3duIGNsdWIgY2x1bXAgY2x1c3RlciBjbHV0Y2ggY29hY2ggY29hc3QgY29jb251dCBjb2RlIGNvZmZlZSBjb2lsIGNvaW4gY29sbGVjdCBjb2xvciBjb2x1bW4gY29tYmluZSBjb21lIGNvbWZvcnQgY29taWMgY29tbW9uIGNvbXBhbnkgY29uY2VydCBjb25kdWN0IGNvbmZpcm0gY29uZ3Jlc3MgY29ubmVjdCBjb25zaWRlciBjb250cm9sIGNvbnZpbmNlIGNvb2sgY29vbCBjb3BwZXIgY29weSBjb3JhbCBjb3JlIGNvcm4gY29ycmVjdCBjb3N0IGNvdHRvbiBjb3VjaCBjb3VudHJ5IGNvdXBsZSBjb3Vyc2UgY291c2luIGNvdmVyIGNveW90ZSBjcmFjayBjcmFkbGUgY3JhZnQgY3JhbSBjcmFuZSBjcmFzaCBjcmF0ZXIgY3Jhd2wgY3JhenkgY3JlYW0gY3JlZGl0IGNyZWVrIGNyZXcgY3JpY2tldCBjcmltZSBjcmlzcCBjcml0aWMgY3JvcCBjcm9zcyBjcm91Y2ggY3Jvd2QgY3J1Y2lhbCBjcnVlbCBjcnVpc2UgY3J1bWJsZSBjcnVuY2ggY3J1c2ggY3J5IGNyeXN0YWwgY3ViZSBjdWx0dXJlIGN1cCBjdXBib2FyZCBjdXJpb3VzIGN1cnJlbnQgY3VydGFpbiBjdXJ2ZSBjdXNoaW9uIGN1c3RvbSBjdXRlIGN5Y2xlIGRhZCBkYW1hZ2UgZGFtcCBkYW5jZSBkYW5nZXIgZGFyaW5nIGRhc2ggZGF1Z2h0ZXIgZGF3biBkYXkgZGVhbCBkZWJhdGUgZGVicmlzIGRlY2FkZSBkZWNlbWJlciBkZWNpZGUgZGVjbGluZSBkZWNvcmF0ZSBkZWNyZWFzZSBkZWVyIGRlZmVuc2UgZGVmaW5lIGRlZnkgZGVncmVlIGRlbGF5IGRlbGl2ZXIgZGVtYW5kIGRlbWlzZSBkZW5pYWwgZGVudGlzdCBkZW55IGRlcGFydCBkZXBlbmQgZGVwb3NpdCBkZXB0aCBkZXB1dHkgZGVyaXZlIGRlc2NyaWJlIGRlc2VydCBkZXNpZ24gZGVzayBkZXNwYWlyIGRlc3Ryb3kgZGV0YWlsIGRldGVjdCBkZXZlbG9wIGRldmljZSBkZXZvdGUgZGlhZ3JhbSBkaWFsIGRpYW1vbmQgZGlhcnkgZGljZSBkaWVzZWwgZGlldCBkaWZmZXIgZGlnaXRhbCBkaWduaXR5IGRpbGVtbWEgZGlubmVyIGRpbm9zYXVyIGRpcmVjdCBkaXJ0IGRpc2FncmVlIGRpc2NvdmVyIGRpc2Vhc2UgZGlzaCBkaXNtaXNzIGRpc29yZGVyIGRpc3BsYXkgZGlzdGFuY2UgZGl2ZXJ0IGRpdmlkZSBkaXZvcmNlIGRpenp5IGRvY3RvciBkb2N1bWVudCBkb2cgZG9sbCBkb2xwaGluIGRvbWFpbiBkb25hdGUgZG9ua2V5IGRvbm9yIGRvb3IgZG9zZSBkb3VibGUgZG92ZSBkcmFmdCBkcmFnb24gZHJhbWEgZHJhc3RpYyBkcmF3IGRyZWFtIGRyZXNzIGRyaWZ0IGRyaWxsIGRyaW5rIGRyaXAgZHJpdmUgZHJvcCBkcnVtIGRyeSBkdWNrIGR1bWIgZHVuZSBkdXJpbmcgZHVzdCBkdXRjaCBkdXR5IGR3YXJmIGR5bmFtaWMgZWFnZXIgZWFnbGUgZWFybHkgZWFybiBlYXJ0aCBlYXNpbHkgZWFzdCBlYXN5IGVjaG8gZWNvbG9neSBlY29ub215IGVkZ2UgZWRpdCBlZHVjYXRlIGVmZm9ydCBlZ2cgZWlnaHQgZWl0aGVyIGVsYm93IGVsZGVyIGVsZWN0cmljIGVsZWdhbnQgZWxlbWVudCBlbGVwaGFudCBlbGV2YXRvciBlbGl0ZSBlbHNlIGVtYmFyayBlbWJvZHkgZW1icmFjZSBlbWVyZ2UgZW1vdGlvbiBlbXBsb3kgZW1wb3dlciBlbXB0eSBlbmFibGUgZW5hY3QgZW5kIGVuZGxlc3MgZW5kb3JzZSBlbmVteSBlbmVyZ3kgZW5mb3JjZSBlbmdhZ2UgZW5naW5lIGVuaGFuY2UgZW5qb3kgZW5saXN0IGVub3VnaCBlbnJpY2ggZW5yb2xsIGVuc3VyZSBlbnRlciBlbnRpcmUgZW50cnkgZW52ZWxvcGUgZXBpc29kZSBlcXVhbCBlcXVpcCBlcmEgZXJhc2UgZXJvZGUgZXJvc2lvbiBlcnJvciBlcnVwdCBlc2NhcGUgZXNzYXkgZXNzZW5jZSBlc3RhdGUgZXRlcm5hbCBldGhpY3MgZXZpZGVuY2UgZXZpbCBldm9rZSBldm9sdmUgZXhhY3QgZXhhbXBsZSBleGNlc3MgZXhjaGFuZ2UgZXhjaXRlIGV4Y2x1ZGUgZXhjdXNlIGV4ZWN1dGUgZXhlcmNpc2UgZXhoYXVzdCBleGhpYml0IGV4aWxlIGV4aXN0IGV4aXQgZXhvdGljIGV4cGFuZCBleHBlY3QgZXhwaXJlIGV4cGxhaW4gZXhwb3NlIGV4cHJlc3MgZXh0ZW5kIGV4dHJhIGV5ZSBleWVicm93IGZhYnJpYyBmYWNlIGZhY3VsdHkgZmFkZSBmYWludCBmYWl0aCBmYWxsIGZhbHNlIGZhbWUgZmFtaWx5IGZhbW91cyBmYW4gZmFuY3kgZmFudGFzeSBmYXJtIGZhc2hpb24gZmF0IGZhdGFsIGZhdGhlciBmYXRpZ3VlIGZhdWx0IGZhdm9yaXRlIGZlYXR1cmUgZmVicnVhcnkgZmVkZXJhbCBmZWUgZmVlZCBmZWVsIGZlbWFsZSBmZW5jZSBmZXN0aXZhbCBmZXRjaCBmZXZlciBmZXcgZmliZXIgZmljdGlvbiBmaWVsZCBmaWd1cmUgZmlsZSBmaWxtIGZpbHRlciBmaW5hbCBmaW5kIGZpbmUgZmluZ2VyIGZpbmlzaCBmaXJlIGZpcm0gZmlyc3QgZmlzY2FsIGZpc2ggZml0IGZpdG5lc3MgZml4IGZsYWcgZmxhbWUgZmxhc2ggZmxhdCBmbGF2b3IgZmxlZSBmbGlnaHQgZmxpcCBmbG9hdCBmbG9jayBmbG9vciBmbG93ZXIgZmx1aWQgZmx1c2ggZmx5IGZvYW0gZm9jdXMgZm9nIGZvaWwgZm9sZCBmb2xsb3cgZm9vZCBmb290IGZvcmNlIGZvcmVzdCBmb3JnZXQgZm9yayBmb3J0dW5lIGZvcnVtIGZvcndhcmQgZm9zc2lsIGZvc3RlciBmb3VuZCBmb3ggZnJhZ2lsZSBmcmFtZSBmcmVxdWVudCBmcmVzaCBmcmllbmQgZnJpbmdlIGZyb2cgZnJvbnQgZnJvc3QgZnJvd24gZnJvemVuIGZydWl0IGZ1ZWwgZnVuIGZ1bm55IGZ1cm5hY2UgZnVyeSBmdXR1cmUgZ2FkZ2V0IGdhaW4gZ2FsYXh5IGdhbGxlcnkgZ2FtZSBnYXAgZ2FyYWdlIGdhcmJhZ2UgZ2FyZGVuIGdhcmxpYyBnYXJtZW50IGdhcyBnYXNwIGdhdGUgZ2F0aGVyIGdhdWdlIGdhemUgZ2VuZXJhbCBnZW5pdXMgZ2VucmUgZ2VudGxlIGdlbnVpbmUgZ2VzdHVyZSBnaG9zdCBnaWFudCBnaWZ0IGdpZ2dsZSBnaW5nZXIgZ2lyYWZmZSBnaXJsIGdpdmUgZ2xhZCBnbGFuY2UgZ2xhcmUgZ2xhc3MgZ2xpZGUgZ2xpbXBzZSBnbG9iZSBnbG9vbSBnbG9yeSBnbG92ZSBnbG93IGdsdWUgZ29hdCBnb2RkZXNzIGdvbGQgZ29vZCBnb29zZSBnb3JpbGxhIGdvc3BlbCBnb3NzaXAgZ292ZXJuIGdvd24gZ3JhYiBncmFjZSBncmFpbiBncmFudCBncmFwZSBncmFzcyBncmF2aXR5IGdyZWF0IGdyZWVuIGdyaWQgZ3JpZWYgZ3JpdCBncm9jZXJ5IGdyb3VwIGdyb3cgZ3J1bnQgZ3VhcmQgZ3Vlc3MgZ3VpZGUgZ3VpbHQgZ3VpdGFyIGd1biBneW0gaGFiaXQgaGFpciBoYWxmIGhhbW1lciBoYW1zdGVyIGhhbmQgaGFwcHkgaGFyYm9yIGhhcmQgaGFyc2ggaGFydmVzdCBoYXQgaGF2ZSBoYXdrIGhhemFyZCBoZWFkIGhlYWx0aCBoZWFydCBoZWF2eSBoZWRnZWhvZyBoZWlnaHQgaGVsbG8gaGVsbWV0IGhlbHAgaGVuIGhlcm8gaGlkZGVuIGhpZ2ggaGlsbCBoaW50IGhpcCBoaXJlIGhpc3RvcnkgaG9iYnkgaG9ja2V5IGhvbGQgaG9sZSBob2xpZGF5IGhvbGxvdyBob21lIGhvbmV5IGhvb2QgaG9wZSBob3JuIGhvcnJvciBob3JzZSBob3NwaXRhbCBob3N0IGhvdGVsIGhvdXIgaG92ZXIgaHViIGh1Z2UgaHVtYW4gaHVtYmxlIGh1bW9yIGh1bmRyZWQgaHVuZ3J5IGh1bnQgaHVyZGxlIGh1cnJ5IGh1cnQgaHVzYmFuZCBoeWJyaWQgaWNlIGljb24gaWRlYSBpZGVudGlmeSBpZGxlIGlnbm9yZSBpbGwgaWxsZWdhbCBpbGxuZXNzIGltYWdlIGltaXRhdGUgaW1tZW5zZSBpbW11bmUgaW1wYWN0IGltcG9zZSBpbXByb3ZlIGltcHVsc2UgaW5jaCBpbmNsdWRlIGluY29tZSBpbmNyZWFzZSBpbmRleCBpbmRpY2F0ZSBpbmRvb3IgaW5kdXN0cnkgaW5mYW50IGluZmxpY3QgaW5mb3JtIGluaGFsZSBpbmhlcml0IGluaXRpYWwgaW5qZWN0IGluanVyeSBpbm1hdGUgaW5uZXIgaW5ub2NlbnQgaW5wdXQgaW5xdWlyeSBpbnNhbmUgaW5zZWN0IGluc2lkZSBpbnNwaXJlIGluc3RhbGwgaW50YWN0IGludGVyZXN0IGludG8gaW52ZXN0IGludml0ZSBpbnZvbHZlIGlyb24gaXNsYW5kIGlzb2xhdGUgaXNzdWUgaXRlbSBpdm9yeSBqYWNrZXQgamFndWFyIGphciBqYXp6IGplYWxvdXMgamVhbnMgamVsbHkgamV3ZWwgam9iIGpvaW4gam9rZSBqb3VybmV5IGpveSBqdWRnZSBqdWljZSBqdW1wIGp1bmdsZSBqdW5pb3IganVuayBqdXN0IGthbmdhcm9vIGtlZW4ga2VlcCBrZXRjaHVwIGtleSBraWNrIGtpZCBraWRuZXkga2luZCBraW5nZG9tIGtpc3Mga2l0IGtpdGNoZW4ga2l0ZSBraXR0ZW4ga2l3aSBrbmVlIGtuaWZlIGtub2NrIGtub3cgbGFiIGxhYmVsIGxhYm9yIGxhZGRlciBsYWR5IGxha2UgbGFtcCBsYW5ndWFnZSBsYXB0b3AgbGFyZ2UgbGF0ZXIgbGF0aW4gbGF1Z2ggbGF1bmRyeSBsYXZhIGxhdyBsYXduIGxhd3N1aXQgbGF5ZXIgbGF6eSBsZWFkZXIgbGVhZiBsZWFybiBsZWF2ZSBsZWN0dXJlIGxlZnQgbGVnIGxlZ2FsIGxlZ2VuZCBsZWlzdXJlIGxlbW9uIGxlbmQgbGVuZ3RoIGxlbnMgbGVvcGFyZCBsZXNzb24gbGV0dGVyIGxldmVsIGxpYXIgbGliZXJ0eSBsaWJyYXJ5IGxpY2Vuc2UgbGlmZSBsaWZ0IGxpZ2h0IGxpa2UgbGltYiBsaW1pdCBsaW5rIGxpb24gbGlxdWlkIGxpc3QgbGl0dGxlIGxpdmUgbGl6YXJkIGxvYWQgbG9hbiBsb2JzdGVyIGxvY2FsIGxvY2sgbG9naWMgbG9uZWx5IGxvbmcgbG9vcCBsb3R0ZXJ5IGxvdWQgbG91bmdlIGxvdmUgbG95YWwgbHVja3kgbHVnZ2FnZSBsdW1iZXIgbHVuYXIgbHVuY2ggbHV4dXJ5IGx5cmljcyBtYWNoaW5lIG1hZCBtYWdpYyBtYWduZXQgbWFpZCBtYWlsIG1haW4gbWFqb3IgbWFrZSBtYW1tYWwgbWFuIG1hbmFnZSBtYW5kYXRlIG1hbmdvIG1hbnNpb24gbWFudWFsIG1hcGxlIG1hcmJsZSBtYXJjaCBtYXJnaW4gbWFyaW5lIG1hcmtldCBtYXJyaWFnZSBtYXNrIG1hc3MgbWFzdGVyIG1hdGNoIG1hdGVyaWFsIG1hdGggbWF0cml4IG1hdHRlciBtYXhpbXVtIG1hemUgbWVhZG93IG1lYW4gbWVhc3VyZSBtZWF0IG1lY2hhbmljIG1lZGFsIG1lZGlhIG1lbG9keSBtZWx0IG1lbWJlciBtZW1vcnkgbWVudGlvbiBtZW51IG1lcmN5IG1lcmdlIG1lcml0IG1lcnJ5IG1lc2ggbWVzc2FnZSBtZXRhbCBtZXRob2QgbWlkZGxlIG1pZG5pZ2h0IG1pbGsgbWlsbGlvbiBtaW1pYyBtaW5kIG1pbmltdW0gbWlub3IgbWludXRlIG1pcmFjbGUgbWlycm9yIG1pc2VyeSBtaXNzIG1pc3Rha2UgbWl4IG1peGVkIG1peHR1cmUgbW9iaWxlIG1vZGVsIG1vZGlmeSBtb20gbW9tZW50IG1vbml0b3IgbW9ua2V5IG1vbnN0ZXIgbW9udGggbW9vbiBtb3JhbCBtb3JlIG1vcm5pbmcgbW9zcXVpdG8gbW90aGVyIG1vdGlvbiBtb3RvciBtb3VudGFpbiBtb3VzZSBtb3ZlIG1vdmllIG11Y2ggbXVmZmluIG11bGUgbXVsdGlwbHkgbXVzY2xlIG11c2V1bSBtdXNocm9vbSBtdXNpYyBtdXN0IG11dHVhbCBteXNlbGYgbXlzdGVyeSBteXRoIG5haXZlIG5hbWUgbmFwa2luIG5hcnJvdyBuYXN0eSBuYXRpb24gbmF0dXJlIG5lYXIgbmVjayBuZWVkIG5lZ2F0aXZlIG5lZ2xlY3QgbmVpdGhlciBuZXBoZXcgbmVydmUgbmVzdCBuZXQgbmV0d29yayBuZXV0cmFsIG5ldmVyIG5ld3MgbmV4dCBuaWNlIG5pZ2h0IG5vYmxlIG5vaXNlIG5vbWluZWUgbm9vZGxlIG5vcm1hbCBub3J0aCBub3NlIG5vdGFibGUgbm90ZSBub3RoaW5nIG5vdGljZSBub3ZlbCBub3cgbnVjbGVhciBudW1iZXIgbnVyc2UgbnV0IG9hayBvYmV5IG9iamVjdCBvYmxpZ2Ugb2JzY3VyZSBvYnNlcnZlIG9idGFpbiBvYnZpb3VzIG9jY3VyIG9jZWFuIG9jdG9iZXIgb2RvciBvZmYgb2ZmZXIgb2ZmaWNlIG9mdGVuIG9pbCBva2F5IG9sZCBvbGl2ZSBvbHltcGljIG9taXQgb25jZSBvbmUgb25pb24gb25saW5lIG9ubHkgb3BlbiBvcGVyYSBvcGluaW9uIG9wcG9zZSBvcHRpb24gb3JhbmdlIG9yYml0IG9yY2hhcmQgb3JkZXIgb3JkaW5hcnkgb3JnYW4gb3JpZW50IG9yaWdpbmFsIG9ycGhhbiBvc3RyaWNoIG90aGVyIG91dGRvb3Igb3V0ZXIgb3V0cHV0IG91dHNpZGUgb3ZhbCBvdmVuIG92ZXIgb3duIG93bmVyIG94eWdlbiBveXN0ZXIgb3pvbmUgcGFjdCBwYWRkbGUgcGFnZSBwYWlyIHBhbGFjZSBwYWxtIHBhbmRhIHBhbmVsIHBhbmljIHBhbnRoZXIgcGFwZXIgcGFyYWRlIHBhcmVudCBwYXJrIHBhcnJvdCBwYXJ0eSBwYXNzIHBhdGNoIHBhdGggcGF0aWVudCBwYXRyb2wgcGF0dGVybiBwYXVzZSBwYXZlIHBheW1lbnQgcGVhY2UgcGVhbnV0IHBlYXIgcGVhc2FudCBwZWxpY2FuIHBlbiBwZW5hbHR5IHBlbmNpbCBwZW9wbGUgcGVwcGVyIHBlcmZlY3QgcGVybWl0IHBlcnNvbiBwZXQgcGhvbmUgcGhvdG8gcGhyYXNlIHBoeXNpY2FsIHBpYW5vIHBpY25pYyBwaWN0dXJlIHBpZWNlIHBpZyBwaWdlb24gcGlsbCBwaWxvdCBwaW5rIHBpb25lZXIgcGlwZSBwaXN0b2wgcGl0Y2ggcGl6emEgcGxhY2UgcGxhbmV0IHBsYXN0aWMgcGxhdGUgcGxheSBwbGVhc2UgcGxlZGdlIHBsdWNrIHBsdWcgcGx1bmdlIHBvZW0gcG9ldCBwb2ludCBwb2xhciBwb2xlIHBvbGljZSBwb25kIHBvbnkgcG9vbCBwb3B1bGFyIHBvcnRpb24gcG9zaXRpb24gcG9zc2libGUgcG9zdCBwb3RhdG8gcG90dGVyeSBwb3ZlcnR5IHBvd2RlciBwb3dlciBwcmFjdGljZSBwcmFpc2UgcHJlZGljdCBwcmVmZXIgcHJlcGFyZSBwcmVzZW50IHByZXR0eSBwcmV2ZW50IHByaWNlIHByaWRlIHByaW1hcnkgcHJpbnQgcHJpb3JpdHkgcHJpc29uIHByaXZhdGUgcHJpemUgcHJvYmxlbSBwcm9jZXNzIHByb2R1Y2UgcHJvZml0IHByb2dyYW0gcHJvamVjdCBwcm9tb3RlIHByb29mIHByb3BlcnR5IHByb3NwZXIgcHJvdGVjdCBwcm91ZCBwcm92aWRlIHB1YmxpYyBwdWRkaW5nIHB1bGwgcHVscCBwdWxzZSBwdW1wa2luIHB1bmNoIHB1cGlsIHB1cHB5IHB1cmNoYXNlIHB1cml0eSBwdXJwb3NlIHB1cnNlIHB1c2ggcHV0IHB1enpsZSBweXJhbWlkIHF1YWxpdHkgcXVhbnR1bSBxdWFydGVyIHF1ZXN0aW9uIHF1aWNrIHF1aXQgcXVpeiBxdW90ZSByYWJiaXQgcmFjY29vbiByYWNlIHJhY2sgcmFkYXIgcmFkaW8gcmFpbCByYWluIHJhaXNlIHJhbGx5IHJhbXAgcmFuY2ggcmFuZG9tIHJhbmdlIHJhcGlkIHJhcmUgcmF0ZSByYXRoZXIgcmF2ZW4gcmF3IHJhem9yIHJlYWR5IHJlYWwgcmVhc29uIHJlYmVsIHJlYnVpbGQgcmVjYWxsIHJlY2VpdmUgcmVjaXBlIHJlY29yZCByZWN5Y2xlIHJlZHVjZSByZWZsZWN0IHJlZm9ybSByZWZ1c2UgcmVnaW9uIHJlZ3JldCByZWd1bGFyIHJlamVjdCByZWxheCByZWxlYXNlIHJlbGllZiByZWx5IHJlbWFpbiByZW1lbWJlciByZW1pbmQgcmVtb3ZlIHJlbmRlciByZW5ldyByZW50IHJlb3BlbiByZXBhaXIgcmVwZWF0IHJlcGxhY2UgcmVwb3J0IHJlcXVpcmUgcmVzY3VlIHJlc2VtYmxlIHJlc2lzdCByZXNvdXJjZSByZXNwb25zZSByZXN1bHQgcmV0aXJlIHJldHJlYXQgcmV0dXJuIHJldW5pb24gcmV2ZWFsIHJldmlldyByZXdhcmQgcmh5dGhtIHJpYiByaWJib24gcmljZSByaWNoIHJpZGUgcmlkZ2UgcmlmbGUgcmlnaHQgcmlnaWQgcmluZyByaW90IHJpcHBsZSByaXNrIHJpdHVhbCByaXZhbCByaXZlciByb2FkIHJvYXN0IHJvYm90IHJvYnVzdCByb2NrZXQgcm9tYW5jZSByb29mIHJvb2tpZSByb29tIHJvc2Ugcm90YXRlIHJvdWdoIHJvdW5kIHJvdXRlIHJveWFsIHJ1YmJlciBydWRlIHJ1ZyBydWxlIHJ1biBydW53YXkgcnVyYWwgc2FkIHNhZGRsZSBzYWRuZXNzIHNhZmUgc2FpbCBzYWxhZCBzYWxtb24gc2Fsb24gc2FsdCBzYWx1dGUgc2FtZSBzYW1wbGUgc2FuZCBzYXRpc2Z5IHNhdG9zaGkgc2F1Y2Ugc2F1c2FnZSBzYXZlIHNheSBzY2FsZSBzY2FuIHNjYXJlIHNjYXR0ZXIgc2NlbmUgc2NoZW1lIHNjaG9vbCBzY2llbmNlIHNjaXNzb3JzIHNjb3JwaW9uIHNjb3V0IHNjcmFwIHNjcmVlbiBzY3JpcHQgc2NydWIgc2VhIHNlYXJjaCBzZWFzb24gc2VhdCBzZWNvbmQgc2VjcmV0IHNlY3Rpb24gc2VjdXJpdHkgc2VlZCBzZWVrIHNlZ21lbnQgc2VsZWN0IHNlbGwgc2VtaW5hciBzZW5pb3Igc2Vuc2Ugc2VudGVuY2Ugc2VyaWVzIHNlcnZpY2Ugc2Vzc2lvbiBzZXR0bGUgc2V0dXAgc2V2ZW4gc2hhZG93IHNoYWZ0IHNoYWxsb3cgc2hhcmUgc2hlZCBzaGVsbCBzaGVyaWZmIHNoaWVsZCBzaGlmdCBzaGluZSBzaGlwIHNoaXZlciBzaG9jayBzaG9lIHNob290IHNob3Agc2hvcnQgc2hvdWxkZXIgc2hvdmUgc2hyaW1wIHNocnVnIHNodWZmbGUgc2h5IHNpYmxpbmcgc2ljayBzaWRlIHNpZWdlIHNpZ2h0IHNpZ24gc2lsZW50IHNpbGsgc2lsbHkgc2lsdmVyIHNpbWlsYXIgc2ltcGxlIHNpbmNlIHNpbmcgc2lyZW4gc2lzdGVyIHNpdHVhdGUgc2l4IHNpemUgc2thdGUgc2tldGNoIHNraSBza2lsbCBza2luIHNraXJ0IHNrdWxsIHNsYWIgc2xhbSBzbGVlcCBzbGVuZGVyIHNsaWNlIHNsaWRlIHNsaWdodCBzbGltIHNsb2dhbiBzbG90IHNsb3cgc2x1c2ggc21hbGwgc21hcnQgc21pbGUgc21va2Ugc21vb3RoIHNuYWNrIHNuYWtlIHNuYXAgc25pZmYgc25vdyBzb2FwIHNvY2NlciBzb2NpYWwgc29jayBzb2RhIHNvZnQgc29sYXIgc29sZGllciBzb2xpZCBzb2x1dGlvbiBzb2x2ZSBzb21lb25lIHNvbmcgc29vbiBzb3JyeSBzb3J0IHNvdWwgc291bmQgc291cCBzb3VyY2Ugc291dGggc3BhY2Ugc3BhcmUgc3BhdGlhbCBzcGF3biBzcGVhayBzcGVjaWFsIHNwZWVkIHNwZWxsIHNwZW5kIHNwaGVyZSBzcGljZSBzcGlkZXIgc3Bpa2Ugc3BpbiBzcGlyaXQgc3BsaXQgc3BvaWwgc3BvbnNvciBzcG9vbiBzcG9ydCBzcG90IHNwcmF5IHNwcmVhZCBzcHJpbmcgc3B5IHNxdWFyZSBzcXVlZXplIHNxdWlycmVsIHN0YWJsZSBzdGFkaXVtIHN0YWZmIHN0YWdlIHN0YWlycyBzdGFtcCBzdGFuZCBzdGFydCBzdGF0ZSBzdGF5IHN0ZWFrIHN0ZWVsIHN0ZW0gc3RlcCBzdGVyZW8gc3RpY2sgc3RpbGwgc3Rpbmcgc3RvY2sgc3RvbWFjaCBzdG9uZSBzdG9vbCBzdG9yeSBzdG92ZSBzdHJhdGVneSBzdHJlZXQgc3RyaWtlIHN0cm9uZyBzdHJ1Z2dsZSBzdHVkZW50IHN0dWZmIHN0dW1ibGUgc3R5bGUgc3ViamVjdCBzdWJtaXQgc3Vid2F5IHN1Y2Nlc3Mgc3VjaCBzdWRkZW4gc3VmZmVyIHN1Z2FyIHN1Z2dlc3Qgc3VpdCBzdW1tZXIgc3VuIHN1bm55IHN1bnNldCBzdXBlciBzdXBwbHkgc3VwcmVtZSBzdXJlIHN1cmZhY2Ugc3VyZ2Ugc3VycHJpc2Ugc3Vycm91bmQgc3VydmV5IHN1c3BlY3Qgc3VzdGFpbiBzd2FsbG93IHN3YW1wIHN3YXAgc3dhcm0gc3dlYXIgc3dlZXQgc3dpZnQgc3dpbSBzd2luZyBzd2l0Y2ggc3dvcmQgc3ltYm9sIHN5bXB0b20gc3lydXAgc3lzdGVtIHRhYmxlIHRhY2tsZSB0YWcgdGFpbCB0YWxlbnQgdGFsayB0YW5rIHRhcGUgdGFyZ2V0IHRhc2sgdGFzdGUgdGF0dG9vIHRheGkgdGVhY2ggdGVhbSB0ZWxsIHRlbiB0ZW5hbnQgdGVubmlzIHRlbnQgdGVybSB0ZXN0IHRleHQgdGhhbmsgdGhhdCB0aGVtZSB0aGVuIHRoZW9yeSB0aGVyZSB0aGV5IHRoaW5nIHRoaXMgdGhvdWdodCB0aHJlZSB0aHJpdmUgdGhyb3cgdGh1bWIgdGh1bmRlciB0aWNrZXQgdGlkZSB0aWdlciB0aWx0IHRpbWJlciB0aW1lIHRpbnkgdGlwIHRpcmVkIHRpc3N1ZSB0aXRsZSB0b2FzdCB0b2JhY2NvIHRvZGF5IHRvZGRsZXIgdG9lIHRvZ2V0aGVyIHRvaWxldCB0b2tlbiB0b21hdG8gdG9tb3Jyb3cgdG9uZSB0b25ndWUgdG9uaWdodCB0b29sIHRvb3RoIHRvcCB0b3BpYyB0b3BwbGUgdG9yY2ggdG9ybmFkbyB0b3J0b2lzZSB0b3NzIHRvdGFsIHRvdXJpc3QgdG93YXJkIHRvd2VyIHRvd24gdG95IHRyYWNrIHRyYWRlIHRyYWZmaWMgdHJhZ2ljIHRyYWluIHRyYW5zZmVyIHRyYXAgdHJhc2ggdHJhdmVsIHRyYXkgdHJlYXQgdHJlZSB0cmVuZCB0cmlhbCB0cmliZSB0cmljayB0cmlnZ2VyIHRyaW0gdHJpcCB0cm9waHkgdHJvdWJsZSB0cnVjayB0cnVlIHRydWx5IHRydW1wZXQgdHJ1c3QgdHJ1dGggdHJ5IHR1YmUgdHVpdGlvbiB0dW1ibGUgdHVuYSB0dW5uZWwgdHVya2V5IHR1cm4gdHVydGxlIHR3ZWx2ZSB0d2VudHkgdHdpY2UgdHdpbiB0d2lzdCB0d28gdHlwZSB0eXBpY2FsIHVnbHkgdW1icmVsbGEgdW5hYmxlIHVuYXdhcmUgdW5jbGUgdW5jb3ZlciB1bmRlciB1bmRvIHVuZmFpciB1bmZvbGQgdW5oYXBweSB1bmlmb3JtIHVuaXF1ZSB1bml0IHVuaXZlcnNlIHVua25vd24gdW5sb2NrIHVudGlsIHVudXN1YWwgdW52ZWlsIHVwZGF0ZSB1cGdyYWRlIHVwaG9sZCB1cG9uIHVwcGVyIHVwc2V0IHVyYmFuIHVyZ2UgdXNhZ2UgdXNlIHVzZWQgdXNlZnVsIHVzZWxlc3MgdXN1YWwgdXRpbGl0eSB2YWNhbnQgdmFjdXVtIHZhZ3VlIHZhbGlkIHZhbGxleSB2YWx2ZSB2YW4gdmFuaXNoIHZhcG9yIHZhcmlvdXMgdmFzdCB2YXVsdCB2ZWhpY2xlIHZlbHZldCB2ZW5kb3IgdmVudHVyZSB2ZW51ZSB2ZXJiIHZlcmlmeSB2ZXJzaW9uIHZlcnkgdmVzc2VsIHZldGVyYW4gdmlhYmxlIHZpYnJhbnQgdmljaW91cyB2aWN0b3J5IHZpZGVvIHZpZXcgdmlsbGFnZSB2aW50YWdlIHZpb2xpbiB2aXJ0dWFsIHZpcnVzIHZpc2EgdmlzaXQgdmlzdWFsIHZpdGFsIHZpdmlkIHZvY2FsIHZvaWNlIHZvaWQgdm9sY2FubyB2b2x1bWUgdm90ZSB2b3lhZ2Ugd2FnZSB3YWdvbiB3YWl0IHdhbGsgd2FsbCB3YWxudXQgd2FudCB3YXJmYXJlIHdhcm0gd2FycmlvciB3YXNoIHdhc3Agd2FzdGUgd2F0ZXIgd2F2ZSB3YXkgd2VhbHRoIHdlYXBvbiB3ZWFyIHdlYXNlbCB3ZWF0aGVyIHdlYiB3ZWRkaW5nIHdlZWtlbmQgd2VpcmQgd2VsY29tZSB3ZXN0IHdldCB3aGFsZSB3aGF0IHdoZWF0IHdoZWVsIHdoZW4gd2hlcmUgd2hpcCB3aGlzcGVyIHdpZGUgd2lkdGggd2lmZSB3aWxkIHdpbGwgd2luIHdpbmRvdyB3aW5lIHdpbmcgd2luayB3aW5uZXIgd2ludGVyIHdpcmUgd2lzZG9tIHdpc2Ugd2lzaCB3aXRuZXNzIHdvbGYgd29tYW4gd29uZGVyIHdvb2Qgd29vbCB3b3JkIHdvcmsgd29ybGQgd29ycnkgd29ydGggd3JhcCB3cmVjayB3cmVzdGxlIHdyaXN0IHdyaXRlIHdyb25nIHlhcmQgeWVhciB5ZWxsb3cgeW91IHlvdW5nIHlvdXRoIHplYnJhIHplcm8gem9uZSB6b28="),c=>c.charCodeAt(0))).split(" ");
+function clearSecret(id){
+const field = document.getElementById(id);
+if (field) { field.value = ""; field.focus(); }
+}
+function switchTab(tab){
+document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+const index ={ encrypt: 0, decrypt: 1, generate: 2, chat: 3 }[tab]?? 0;
+const tabs = document.querySelectorAll('.tab');
+if (tabs[index]) tabs[index].classList.add('active');
+const panel = document.getElementById('panel-'+ tab);
+if (panel) panel.classList.add('active');
+}
+function selectDecryptMode(mode){
+document.querySelectorAll('[data-decrypt-mode]').forEach(button =>{
+const selected = button.dataset.decryptMode === mode;
+button.classList.toggle('is-selected', selected);
+button.setAttribute('aria-checked', selected ? 'true': 'false');
+});
+document.querySelectorAll('.decrypt-mode-panel').forEach(panel =>{
+panel.hidden = panel.id !== 'decrypt-mode-'+ mode;
+});
+document.getElementById('decResult').classList.remove('show', 'success', 'error');
+document.getElementById('decryptDataResult').classList.remove('show', 'success', 'error');
+}
+function selectEncryptMode(mode){
+document.querySelectorAll('[data-encrypt-mode]').forEach(button =>{
+const selected = button.dataset.encryptMode === mode;
+button.classList.toggle('is-selected', selected);
+button.setAttribute('aria-checked', selected ? 'true': 'false');
+});
+document.querySelectorAll('.encrypt-mode-panel').forEach(panel =>{ panel.hidden = panel.id !== 'encrypt-mode-'+ mode;});
+document.getElementById('encResult').classList.remove('show', 'success', 'error');
+}
+async function generateBip39Words(count){
+if (WORDLIST.length !== 2048 || new Set(WORDLIST).size !== 2048) throw new Error("فهرست داخلی BIP-39 معتبر نیست.");
+if (![12, 24].includes(count)) throw new Error("BIP-39 فقط در این برنامه برای ۱۲ یا ۲۴ کلمه فعال است.");
+const wordlist = WORDLIST;
+const entropyBitsLength = count === 12 ? 128 : 256;
+const entropy = crypto.getRandomValues(new Uint8Array(entropyBitsLength / 8));
+const hash = new Uint8Array(await crypto.subtle.digest("SHA-256", entropy));
+const entropyBits = Array.from(entropy, b => b.toString(2).padStart(8, "0")).join("");
+const checksumLength = entropyBitsLength / 32;
+const checksumBits = Array.from(hash.slice(0, Math.ceil(checksumLength / 8)), b => b.toString(2).padStart(8, "0")).join("").slice(0, checksumLength);
+const bits = entropyBits + checksumBits;
+const words =[];
+for (let i = 0; i < bits.length; i += 11){
+words.push(wordlist[parseInt(bits.slice(i, i + 11), 2)]);
+}
+return words;
+}
+function selectWordCount(count){
+const select = document.getElementById("wordCount");
+if (![12, 24].includes(Number(count))) return;
+select.value = String(count);
+document.querySelectorAll(".count-option").forEach(button =>{
+const selected = Number(button.dataset.count)=== Number(count);
+button.classList.toggle("is-selected", selected);
+button.setAttribute("aria-checked", selected ? "true": "false");
+});
+}
+function selectKeyMode(mode){
+const custom = mode === "custom";
+document.querySelectorAll(".mode-option").forEach(button =>{
+const selected = button.dataset.mode === mode;
+button.classList.toggle("is-selected", selected);
+button.setAttribute("aria-checked", selected ? "true": "false");
+});
+document.getElementById("wordCount").disabled = custom;
+document.querySelectorAll(".count-option").forEach(button =>{
+button.disabled = custom;
+button.style.opacity = custom ? "0.45": "1";
+button.style.cursor = custom ? "not-allowed": "pointer";
+});
+document.getElementById("countHelp").style.display = custom ? "none": "";
+document.getElementById("randomModeHelp").hidden = custom;
+document.getElementById("customModeFields").hidden =!custom;
+document.getElementById("generateBtn").textContent = custom ? "ثبت رمز دلخواه": "ساخت کلید جدید";
+window.currentKeyMode = custom ? "custom": "random";
+}
+async function doGenerate(){
+try {
+if (!window.crypto ||!crypto.getRandomValues){
+throw new Error("مولد تصادفی امن در این مرورگر در دسترس نیست.");
+}
+let phrase;
+let title;
+let hint;
+if (window.currentKeyMode === "custom"){
+const password = document.getElementById("customPassword").value;
+const confirmation = document.getElementById("customPasswordConfirm").value;
+if (!password) throw new Error("لطفاً رمز دلخواه را وارد کنید.");
+if (password.length < 12) throw new Error("برای امنیت بهتر، رمز دلخواه باید حداقل ۱۲ نویسه داشته باشد.");
+if (password !== confirmation) throw new Error("رمز و تکرار آن یکسان نیستند.");
+if (!/\S/.test(password)) throw new Error("رمز دلخواه نمی‌تواند فقط شامل فاصله باشد.");
+phrase = password;
+title = "✅ رمز دلخواه شما:";
+hint = "این رمز، کلید رمزنگاری شماست. آن را فراموش نکنید و با دیگران به اشتراک نگذارید.";
+document.getElementById("wordList").replaceChildren();
+} else {
+const count = Number(document.getElementById("wordCount").value);
+if (![12, 24].includes(count)) throw new Error("تعداد کلمات انتخاب‌شده نامعتبر است.");
+const words = await generateBip39Words(count);
+phrase = words.join(" ");
+title = `✅ کلید ${count} کلمه‌ای شما:`;
+hint = `این کلید ${count} کلمه دارد. هر کسی که آن را داشته باشد می‌تواند پیام‌های شما را بخواند؛ آن را امن نگه دارید.`;
+const list = document.getElementById("wordList");
+list.replaceChildren();
+words.forEach(w =>{
+const span = document.createElement("span");
+span.className = "word";
+span.textContent = w;
+list.appendChild(span);
+});
+}
+document.getElementById("genResultBox").textContent = phrase;
+document.querySelector("#genResult .result-title").textContent = title;
+document.querySelector("#genResult .hint").textContent = hint;
+document.getElementById("genResult").classList.add("show", "success");
+window.lastGeneratedKey = phrase;
+} catch (err){
+alert(err.message || "ساخت کلید با خطا روبه‌رو شد.");
+}
+}
+function useAsKey(){
+if (!window.lastGeneratedKey) return;
+document.getElementById("encKey").value = window.lastGeneratedKey;
+document.getElementById("decKey").value = window.lastGeneratedKey;
+switchTab('encrypt');
+alert("کلید در بخش‌های رمزنگاری و رمزگشایی قرار گرفت ✓");
+}
+async function deriveKey(passphrase, salt, usage){
+const keyMaterial = await crypto.subtle.importKey(
+"raw", new TextEncoder().encode(passphrase), "PBKDF2", false,["deriveKey"]
+);
+return crypto.subtle.deriveKey(
+{ name: "PBKDF2", salt, iterations: _1, hash: "SHA-256"},
+keyMaterial,{ name: "AES-GCM", length: 256 }, false, usage
+);
+}
+function bytesToBase64(bytes){
+let binary = '';
+const chunkSize = 0x8000;
+for (let i = 0; i < bytes.length; i += chunkSize) {
+  binary += String.fromCharCode(...bytes.subarray(i, Math.min(i + chunkSize, bytes.length)));
+}
+return btoa(binary);
+}
+function base64ToBytes(b64){
+const normalized = b64.replace(/\s+/g, '');
+const bin = atob(normalized);
+const bytes = new Uint8Array(bin.length);
+for (let i = 0; i < bin.length; i++) bytes[i]= bin.charCodeAt(i);
+return bytes;
+}
+async function encrypt(plaintext, passphrase){
+const salt = crypto.getRandomValues(new Uint8Array(_3));
+const iv = crypto.getRandomValues(new Uint8Array(_2));
+const key = await deriveKey(passphrase, salt,["encrypt"]);
+const encoded = new TextEncoder().encode(plaintext);
+const ciphertext = await crypto.subtle.encrypt({ name: "AES-GCM", iv }, key, encoded);
+const combined = new Uint8Array(salt.length + iv.length + ciphertext.byteLength);
+combined.set(salt, 0);
+combined.set(iv, salt.length);
+combined.set(new Uint8Array(ciphertext), salt.length + iv.length);
+return _5 + bytesToBase64(combined);
+}
+async function decrypt(encryptedText, passphrase){
+const message = encryptedText.trim();
+let raw, salt, iv, ciphertext, key;
+if (message.startsWith(_5)){
+raw = base64ToBytes(message.slice(_5.length));
+if (raw.length <= _3 + _2) throw new Error("پیام نامعتبر");
+salt = raw.slice(0, _3);
+iv = raw.slice(_3, _3 + _2);
+ciphertext = raw.slice(_3 + _2);
+} else if (message.startsWith(_4)){
+raw = base64ToBytes(message.slice(_4.length));
+if (raw.length <= _2) throw new Error("پیام نامعتبر");
+salt = _0;
+iv = raw.slice(0, _2);
+ciphertext = raw.slice(_2);
+} else {
+raw = base64ToBytes(message);
+if (raw.length <= _2) throw new Error("پیام نامعتبر");
+salt = _0;
+iv = raw.slice(0, _2);
+ciphertext = raw.slice(_2);
+}
+key = await deriveKey(passphrase, salt,["decrypt"]);
+const decrypted = await crypto.subtle.decrypt({ name: "AES-GCM", iv }, key, ciphertext);
+return new TextDecoder().decode(decrypted);
+}
+async function doEncrypt(){
+const plain = document.getElementById("plainText").value;
+const key = document.getElementById("encKey").value.trim();
+const btn = document.getElementById("encryptBtn");
+const resultEl = document.getElementById("encResult");
+if (!plain.length ||!key.trim()){ alert("متن و کلید را وارد کنید"); return;}
+btn.disabled = true;
+btn.innerHTML = '<span class="spinner"></span> در حال رمزنگاری...';
+resultEl.classList.remove("show", "success", "error");
+try {
+const encrypted = await encrypt(plain, key);
+document.getElementById("encResultTitle").textContent = "✅ پیام رمزشده:";
+document.getElementById("encResultBox").textContent = encrypted;
+resultEl.classList.add("show", "success");
+await addToChat(encrypted, "text", "پیام متنی");
+} catch (err){
+document.getElementById("encResultTitle").textContent = "❌ خطا";
+document.getElementById("encResultBox").textContent = err.message || "خطا";
+resultEl.classList.add("show", "error");
+} finally {
+btn.disabled = false;
+btn.textContent = "رمزنگاری کن";
+}
+}
+async function doDecrypt(){
+const encrypted = document.getElementById("encryptedText").value.trim();
+const key = document.getElementById("decKey").value.trim();
+const btn = document.getElementById("decryptBtn");
+const resultEl = document.getElementById("decResult");
+if (!encrypted ||!key.trim()){ alert("پیام و کلید را وارد کنید"); return;}
+btn.disabled = true;
+btn.innerHTML = '<span class="spinner"></span> در حال رمزگشایی...';
+resultEl.classList.remove("show", "success", "error");
+try {
+const plain = await decrypt(encrypted, key);
+document.getElementById("decResultTitle").textContent = "✅ پیام اصلی:";
+document.getElementById("decResultBox").textContent = plain;
+resultEl.classList.add("show", "success");
+} catch (err){
+document.getElementById("decResultTitle").textContent = "❌ خطا در رمزگشایی";
+document.getElementById("decResultBox").textContent = "کلید اشتباه است یا پیام خراب شده.";
+resultEl.classList.add("show", "error");
+} finally {
+btn.disabled = false;
+btn.textContent = "رمزگشایی کن";
+}
+}
+const FILE_PREFIX = "pgf1:";
+const MAX_FILE_BYTES = 25 * 1024 * 1024;
+async function encryptBytes(plainBytes, passphrase){
+const salt = crypto.getRandomValues(new Uint8Array(_3));
+const iv = crypto.getRandomValues(new Uint8Array(_2));
+const key = await deriveKey(passphrase, salt,["encrypt"]);
+const cipher = await crypto.subtle.encrypt({ name: "AES-GCM", iv }, key, plainBytes);
+const combined = new Uint8Array(salt.length + iv.length + cipher.byteLength);
+combined.set(salt, 0);
+combined.set(iv, salt.length);
+combined.set(new Uint8Array(cipher), salt.length + iv.length);
+return FILE_PREFIX + bytesToBase64(combined);
+}
+async function decryptBytes(encryptedText, passphrase){
+if (!encryptedText.startsWith(FILE_PREFIX)) throw new Error("این فایل رمز‌شدهٔ Phrase Guard نیست.");
+const raw = base64ToBytes(encryptedText.slice(FILE_PREFIX.length));
+if (raw.length <= _3 + _2 + 16) throw new Error("دادهٔ رمز‌شده نامعتبر است.");
+const salt = raw.slice(0, _3);
+const iv = raw.slice(_3, _3 + _2);
+const ciphertext = raw.slice(_3 + _2);
+const key = await deriveKey(passphrase, salt,["decrypt"]);
+return new Uint8Array(await crypto.subtle.decrypt({ name: "AES-GCM", iv }, key, ciphertext));
+}
+function downloadBlob(blob, filename){
+const url = URL.createObjectURL(blob);
+const a = document.createElement("a");
+a.href = url;
+a.download = filename;
+document.body.appendChild(a);
+a.click();
+a.remove();
+setTimeout(()=> URL.revokeObjectURL(url), 30000);
+}
+async function encryptSelectedFile(){
+const file = document.getElementById("fileInput").files[0];
+const key = document.getElementById("encKey").value.trim();
+const status = document.getElementById("fileStatus");
+if (!file ||!key){ alert("یک فایل و کلید را انتخاب کن."); return;}
+if (!window.crypto || !crypto.subtle) { status.textContent = "رمزنگاری امن در این محیط پشتیبانی نمی‌شود؛ فایل را در مرورگر به‌روز و محیط امن باز کن."; return; }
+if (file.size > MAX_FILE_BYTES){ alert("حداکثر اندازهٔ فایل ۲۵ مگابایت است."); return;}
+const btn = document.getElementById("fileEncryptBtn");
+btn.disabled = true;
+status.textContent = "در حال خواندن فایل؛ لطفاً صفحه را نبند...";
+try {
+const header = new TextEncoder().encode(JSON.stringify({
+phraseGuardFile: 1, name: file.name, type: file.type || "application/octet-stream", lastModified: file.lastModified
+})+ "\n");
+const original = new Uint8Array(await file.arrayBuffer());
+status.textContent = "فایل خوانده شد؛ در حال رمزگذاری امن (AES-256-GCM)...";
+const payload = new Uint8Array(header.length + original.length);
+payload.set(header);
+payload.set(original, header.length);
+const encrypted = await encryptBytes(payload, key);
+if (!encrypted.startsWith(FILE_PREFIX)) throw new Error("اعتبارسنجی خروجی رمز‌شده ناموفق بود.");
+status.textContent = "رمزگذاری کامل شد؛ آماده‌سازی فایل خروجی...";
+downloadBlob(new Blob([encrypted],{ type: "text/plain;charset=utf-8"}), file.name + ".pgf");
+await addToChat(encrypted, "file", file.name + ".pgf", { originalName: file.name, mimeType: file.type || "application/octet-stream" });
+status.textContent = "فایل رمز‌شده ساخته، دانلود و به گفت‌وگوها اضافه شد.";
+} catch (e){
+status.textContent = "خطا در رمزگذاری: "+(e.message || "خطای ناشناخته");
+} finally { btn.disabled = false;}
+}
+async function decryptSelectedFile(){
+const file = document.getElementById("decryptFileInput").files[0];
+const key = document.getElementById("decKey").value.trim();
+const status = document.getElementById("fileDecryptStatus");
+if (!file ||!key){ alert("فایل رمز‌شده و کلید رمزگشایی را انتخاب/وارد کن."); return;}
+if (!window.crypto || !crypto.subtle) { status.textContent = "رمزگشایی امن در این محیط پشتیبانی نمی‌شود؛ فایل را در مرورگر به‌روز و محیط امن باز کن."; return; }
+if (file.size > MAX_FILE_BYTES * 2){ alert("اندازهٔ فایل رمز‌شده بیش از حد مجاز است."); return;}
+const btn = document.getElementById("fileDecryptBtn");
+btn.disabled = true;
+status.textContent = "در حال رمزگشایی فایل...";
+try {
+const encryptedText = await file.text();
+const payload = await decryptBytes(encryptedText.trim(), key);
+let newline =-1;
+for (let i = 0; i < payload.length; i++){ if (payload[i]=== 10){ newline = i; break;}}
+if (newline < 0) throw new Error("سرآیند فایل نامعتبر است.");
+const meta = JSON.parse(new TextDecoder().decode(payload.slice(0, newline)));
+if (meta.phraseGuardFile !== 1 || typeof meta.name !== "string" || !meta.name.trim() || meta.name.length > 255 || (meta.type !== undefined && typeof meta.type !== "string")) throw new Error("اطلاعات فایل نامعتبر است.");
+const content = payload.slice(newline + 1);
+if (!content.length) throw new Error("محتوای فایل خالی یا ناقص است.");
+const safeName = meta.name.replace(/[\\/:*?"<>|\x00-\x1F]/g, "_").replace(/^\.+$/, "restored-file");
+downloadBlob(new Blob([content],{ type: meta.type || "application/octet-stream"}), safeName);
+status.textContent = "فایل با موفقیت بازیابی و دانلود شد.";
+} catch (e){
+const msg = (e && e.message) ? e.message : "";
+if (msg.includes("سرآیند") || msg.includes("اطلاعات فایل") || msg.includes("نامعتبر")) status.textContent = "ساختار فایل رمز‌شده خراب یا نامعتبر است.";
+else status.textContent = "رمزگشایی ناموفق بود؛ کلید نادرست است یا فایل ناقص/دست‌کاری‌شده است.";
+} finally { btn.disabled = false;}
+}
+async function decryptDataText(){
+const encrypted = document.getElementById("encryptedDataText").value.trim();
+const key = document.getElementById("decKey").value.trim();
+const result = document.getElementById("decryptDataResult");
+const btn = document.getElementById("decryptDataBtn");
+if (!encrypted ||!key){ alert("محتوای رمز‌شده و کلید رمزگشایی را وارد کن."); return;}
+btn.disabled = true;
+result.classList.remove("show", "success", "error");
+try {
+const plain = await decrypt(encrypted, key);
+document.getElementById("decryptDataTitle").textContent = "محتوای بازیابی‌شده";
+document.getElementById("decryptDataOutput").textContent = plain;
+result.classList.add("show", "success");
+} catch (e){
+document.getElementById("decryptDataTitle").textContent = "خطا در رمزگشایی";
+document.getElementById("decryptDataOutput").textContent = "کلید اشتباه است یا محتوای رمز‌شده خراب شده است.";
+result.classList.add("show", "error");
+} finally { btn.disabled = false;}
+}
+async function encryptDataText(){
+const text = document.getElementById("qrText").value;
+const key = document.getElementById("encKey").value.trim();
+if (!text ||!key){ alert("متن/لینک و کلید را وارد کن."); return;}
+const result = document.getElementById("dataTextResult");
+try {
+const encrypted = await encrypt(text, key);
+document.getElementById("dataTextOutput").textContent = encrypted;
+result.classList.add("show", "success");
+await addToChat(encrypted, "text", "محتوای QR / بارکد");
+} catch (e){
+document.getElementById("dataTextOutput").textContent = e.message || "خطا";
+result.classList.add("show", "error");
+}
+}
+async function scanSelectedCode(){
+const file = document.getElementById("qrFileInput").files[0];
+const status = document.getElementById("qrStatus");
+if (!file){ alert("ابتدا تصویر QR یا بارکد را انتخاب کن."); return;}
+if (!("BarcodeDetector" in window)||!("createImageBitmap" in window)){
+status.textContent = "این مرورگر قابلیت تشخیص بارکد را ندارد. می‌توانی تصویر را مستقیماً به‌عنوان فایل رمزگذاری کنی.";
+return;
+}
+try {
+const detector = new BarcodeDetector();
+const bitmap = await createImageBitmap(file);
+const codes = await detector.detect(bitmap);
+bitmap.close?.();
+if (!codes.length){ status.textContent = "QR یا بارکدی در تصویر پیدا نشد."; return;}
+document.getElementById("qrText").value = codes[0].rawValue;
+status.textContent = "محتوای کد خوانده شد. حالا دکمهٔ رمزگذاری محتوای QR / بارکد را بزن.";
+} catch (e){
+status.textContent = "خواندن این تصویر ناموفق بود. برای رمزگذاری خود تصویر، حالت «فایل / تصویر» را انتخاب کن.";
+}
+}
+async function copyText(id){
+const text = document.getElementById(id).textContent;
+if (!text){ alert("متنی برای کپی کردن وجود ندارد."); return;}
+try {
+if (navigator.clipboard && navigator.clipboard.writeText){
+await navigator.clipboard.writeText(text);
+} else {
+throw new Error("Clipboard API unavailable");
+}
+alert("کپی شد ✓");
+} catch (_){
+const ta = document.createElement("textarea");
+ta.value = text;
+ta.style.position = "fixed";
+ta.style.opacity = "0";
+document.body.appendChild(ta);
+ta.select();
+let copied = false;
+try { copied = document.execCommand("copy");} catch (_){}
+document.body.removeChild(ta);
+alert(copied ? "کپی شد ✓": "کپی خودکار ناموفق بود؛ متن را دستی انتخاب و کپی کنید.");
+}
+}
+function shareText(id){
+const text = document.getElementById(id).textContent;
+if (navigator.share) navigator.share({ text }).catch(()=>{});
+else copyText(id);
+}
+const CHAT_DB_NAME = "PhraseGuardChatDB";
+const CHAT_STORE = "items";
+function openChatDB(){
+  return new Promise((resolve,reject)=>{
+    if (!("indexedDB" in window)) { reject(new Error("ذخیره‌سازی محلی در این مرورگر در دسترس نیست.")); return; }
+    const request = indexedDB.open(CHAT_DB_NAME, 2);
+    request.onupgradeneeded = () => { const db=request.result; if(!db.objectStoreNames.contains(CHAT_STORE)) db.createObjectStore(CHAT_STORE,{keyPath:"id"}); if(!db.objectStoreNames.contains("messages")) db.createObjectStore("messages",{keyPath:"id"}); };
+    request.onsuccess=()=>resolve(request.result); request.onerror=()=>reject(request.error || new Error("باز کردن آرشیو ناموفق بود."));
+  });
+}
+function chatTransaction(mode, action){
+  return openChatDB().then(db=>new Promise((resolve,reject)=>{
+    const tx=db.transaction(CHAT_STORE,mode), store=tx.objectStore(CHAT_STORE); let req;
+    try { req=action(store); } catch(e){ db.close(); reject(e); return; }
+    let result;
+    if(req){ req.onsuccess=()=>{result=req.result;}; req.onerror=()=>reject(req.error); }
+    tx.oncomplete=()=>{db.close();resolve(result);}; tx.onerror=()=>{db.close();reject(tx.error || new Error("خطای ذخیره‌سازی."));}; tx.onabort=()=>{db.close();reject(tx.error || new Error("ذخیره‌سازی لغو شد."));};
+  }));
+}
+async function addToChat(content,type,name,meta={}){
+  try {
+    const item={id: (crypto.randomUUID ? crypto.randomUUID() : String(Date.now())+Math.random().toString(16).slice(2)), type, name: String(name|| (type==="file"?"فایل رمز‌شده":"پیام رمز‌شده")).slice(0,180), content, meta, createdAt:Date.now()};
+    await chatTransaction("readwrite", store=>store.add(item));
+    const status=document.getElementById("chatStatus"); if(status) status.textContent="به گفت‌وگوها اضافه شد ✓";
+    await renderChat();
+  } catch(e){
+    const status=document.getElementById("chatStatus"); if(status) status.textContent="خروجی رمزگذاری شد، اما ذخیره در گفت‌وگوها ممکن نشد: "+(e.message||"فضای ذخیره‌سازی کافی نیست");
+  }
+}
+function formatChatDate(ts){ try{return new Intl.DateTimeFormat("fa-IR",{dateStyle:"short",timeStyle:"short"}).format(new Date(ts));}catch(_){return new Date(ts).toLocaleString();} }
+function escapeChatText(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+async function renderChat(){
+  const host=document.getElementById("chatMessages"); if(!host) return;
+  try {
+    const items=(await chatTransaction("readonly",store=>store.getAll()))||[];
+    items.sort((a,b)=>a.createdAt-b.createdAt);
+    host.innerHTML="";
+    const empty=document.getElementById("chatEmpty"); empty.style.display=items.length?"none":"block";
+    document.getElementById("chatCount").textContent=items.length?"("+items.length+")":"";
+    for(const item of items){
+      const card=document.createElement("div"); card.className="card"; card.style.cssText="margin:0;padding:13px 14px;border-radius:16px;max-width:100%;";
+      const icon=item.type==="file"?"📎":"🔒";
+      const preview=item.type==="file"?"فایل رمز‌شده • "+(item.meta?.originalName||item.name):"پیام رمز‌شده • "+item.content.length.toLocaleString("fa-IR")+" نویسه";
+      card.innerHTML='<div style="display:flex;align-items:flex-start;gap:10px;"><div style="font-size:1.35rem;">'+icon+'</div><div style="flex:1;min-width:0;"><div style="display:flex;justify-content:space-between;gap:8px;align-items:start;"><strong style="overflow-wrap:anywhere;">'+escapeChatText(item.name)+'</strong><span style="font-size:.7rem;color:var(--muted);white-space:nowrap;">'+escapeChatText(formatChatDate(item.createdAt))+'</span></div><div class="hint" style="margin:3px 0 8px;">'+escapeChatText(preview)+'</div><details data-content-id="'+item.id+'"><summary style="cursor:pointer;color:#a78bfa;font-size:.83rem;">نمایش محتوای رمز‌شده</summary><div class="box ltr" style="margin-top:8px;max-height:180px;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;"></div></details><div class="actions"><button class="action-btn" data-copy="'+item.id+'">کپی</button><button class="action-btn" data-download="'+item.id+'">'+(item.type==="file"?"دانلود فایل رمز‌شده":"ذخیرهٔ .txt")+'</button><button class="action-btn" data-delete="'+item.id+'">حذف</button></div></div></div>';
+      host.appendChild(card);
+    }
+    host.querySelectorAll("details[data-content-id]").forEach(details=>details.addEventListener("toggle",()=>{if(details.open){const item=items.find(x=>x.id===details.dataset.contentId);const body=details.querySelector(".box");if(item&&body&&!body.dataset.loaded){body.textContent=item.content;body.dataset.loaded="1";}}}));
+    host.querySelectorAll("[data-copy]").forEach(btn=>btn.addEventListener("click",async()=>{const item=items.find(x=>x.id===btn.dataset.copy);if(item){const ok=await copyToClipboard(item.content);const status=document.getElementById("chatStatus");if(status)status.textContent=ok?"محتوای رمز‌شده در کلیپ‌بورد کپی شد ✓":"کپی خودکار در این مرورگر پشتیبانی نشد؛ متن را باز و دستی کپی کن.";}}));
+    host.querySelectorAll("[data-download]").forEach(btn=>btn.addEventListener("click",()=>{const item=items.find(x=>x.id===btn.dataset.download);if(item)downloadBlob(new Blob([item.content],{type:"text/plain;charset=utf-8"}),item.type==="file"?item.name:(item.name.replace(/[\\/:*?"<>|]/g,"_")+".txt"));}));
+    host.querySelectorAll("[data-delete]").forEach(btn=>btn.addEventListener("click",async()=>{if(!confirm("این مورد از آرشیو محلی حذف شود؟"))return;await chatTransaction("readwrite",store=>store.delete(btn.dataset.delete));await renderChat();}));
+  } catch(e){
+    document.getElementById("chatCount").textContent="";
+    document.getElementById("chatStatus").textContent="آرشیو گفت‌وگو در این محیط قابل دسترسی نیست. اگر فایل را در حالت خصوصی باز کرده‌ای، آن را در حالت عادی مرورگر امتحان کن.";
+  }
+}
+async function clearChat(){
+  if(!confirm("همهٔ پیام‌ها و فایل‌های ذخیره‌شده در گفت‌وگوها حذف شوند؟ این کار قابل بازگشت نیست."))return;
+  try{await chatTransaction("readwrite",store=>store.clear());await renderChat();document.getElementById("chatStatus").textContent="آرشیو گفت‌وگو پاک شد.";}
+  catch(e){document.getElementById("chatStatus").textContent="پاک‌کردن آرشیو ممکن نشد: "+(e.message||"");}
+}
+
+async function clearVisibleChat(hostId){if(!confirm('این صفحهٔ چت و تاریخچهٔ ذخیره‌شدهٔ آن پاک شود؟'))return;try{const db=await openChatDB();await new Promise((resolve,reject)=>{const tx=db.transaction('messages','readwrite'),store=tx.objectStore('messages'),r=store.getAll();r.onsuccess=()=>{r.result.filter(x=>x.hostId===hostId).forEach(x=>store.delete(x.id));};tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error)});db.close();const h=document.getElementById(hostId);h.innerHTML='<div class="chat-welcome">تاریخچه پاک شد</div>';}catch(e){alert('پاک‌کردن تاریخچه ناموفق بود.')}}
+async function saveChatLog(hostId,item){try{const db=await openChatDB();await new Promise((resolve,reject)=>{const tx=db.transaction("messages","readwrite");tx.objectStore("messages").add({id:(crypto.randomUUID?crypto.randomUUID():String(Date.now())+Math.random()),hostId,...item});tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);});db.close();}catch(e){const st=document.getElementById("chatStatus");if(st)st.textContent="ذخیرهٔ تاریخچهٔ چت انجام نشد؛ فضای مرورگر را بررسی کن.";}}
+async function restoreChatLogs(){for(const hostId of ["encChatMessages","decChatMessages"]){const host=document.getElementById(hostId);if(!host)continue;try{const db=await openChatDB();const rows=await new Promise((resolve,reject)=>{const tx=db.transaction("messages","readonly"),r=tx.objectStore("messages").getAll();r.onsuccess=()=>resolve(r.result||[]);r.onerror=()=>reject(r.error);});db.close();rows.filter(x=>x.hostId===hostId).sort((a,b)=>a.createdAt-b.createdAt).forEach(x=>{const actions=[{label:"کپی خروجی",run:()=>copyChatValue(x.content)},{label:"دانلود .txt",run:()=>downloadBlob(new Blob([x.content],{type:"text/plain;charset=utf-8"}),"phrase-guard-message.txt")}];chatBubble(host,x.title,x.content,x.kind,actions,x.originalText,false);});}catch(e){}}}
+function chatBubble(host,title,content,kind='outgoing',actions=[],originalText=null, persist=true){
+ const welcome=host.querySelector('.chat-welcome');if(welcome)welcome.remove();
+ const b=document.createElement('div');b.className='bubble '+kind;
+ const t=document.createElement('div');t.className='bubble-title';t.textContent=title;b.appendChild(t);
+ const c=document.createElement('div');c.className='bubble-content';c.textContent=content;b.appendChild(c);
+ if(originalText!==null){const orig=document.createElement('details');orig.style.marginTop='9px';const sum=document.createElement('summary');sum.textContent='نمایش متن اصلی برای بررسی املا';sum.style.cursor='pointer';sum.style.fontSize='.78rem';const original=document.createElement('div');original.style.cssText='white-space:pre-wrap;overflow-wrap:anywhere;margin-top:7px;padding:8px;border:1px solid #496171;border-radius:8px;direction:auto';original.textContent=originalText;orig.append(sum,original);b.appendChild(orig);}
+ if(persist && kind!=='error') saveChatLog(host.id,{title,content,kind,originalText,createdAt:Date.now()}).catch(()=>{});
+ if(actions.length){const row=document.createElement('div');row.className='bubble-actions';actions.forEach(a=>{const btn=document.createElement('button');btn.textContent=a.label;btn.onclick=a.run;row.appendChild(btn)});b.appendChild(row)}
+ host.appendChild(b);host.scrollTop=host.scrollHeight;return b;
+}
+document.addEventListener('DOMContentLoaded',()=>{
+ const ef=document.getElementById('encChatFile'),df=document.getElementById('decChatFile');
+ ef?.addEventListener('change',()=>document.getElementById('encChatFileName').textContent=ef.files[0]?.name||'فایلی انتخاب نشده');
+ df?.addEventListener('change',()=>document.getElementById('decChatFileName').textContent=df.files[0]?.name||'فایلی انتخاب نشده');
+ restoreChatLogs();
+ document.getElementById('encChatInput')?.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendEncryptedChat();}});
+ document.getElementById('decChatInput')?.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();receiveEncryptedText();}});
+});
+function sendEncryptedChat(){const selected=document.getElementById('encChatFile')?.files?.[0];if(selected){sendEncryptedFile();return}sendEncryptedText()}
+function receiveEncryptedChat(){const selected=document.getElementById('decChatFile')?.files?.[0];if(selected){receiveEncryptedFile();return}receiveEncryptedText()}
+function clearSelectedEncFile(){const input=document.getElementById('encChatFile');if(input)input.value='';const label=document.getElementById('encChatFileName');if(label)label.textContent='فایلی انتخاب نشده'}
+function clearSelectedDecFile(){const input=document.getElementById('decChatFile');if(input)input.value='';const label=document.getElementById('decChatFileName');if(label)label.textContent='فایلی انتخاب نشده'}
+async function sendEncryptedText(){const input=document.getElementById('encChatInput'),key=document.getElementById('encKey').value.trim(),text=input.value;if(!key||!text.trim()){alert('کلید و متن پیام را وارد کن.');return}try{const out=await encrypt(text,key);chatBubble(document.getElementById('encChatMessages'),'پیام رمز‌شده • '+new Date().toLocaleTimeString(),out,'outgoing',[{label:'کپی خروجی',run:()=>copyChatValue(out)},{label:'دانلود .txt',run:()=>downloadBlob(new Blob([out],{type:'text/plain;charset=utf-8'}),'phrase-guard-message.txt')}],text);input.value='';}catch(e){chatBubble(document.getElementById('encChatMessages'),'خطا',e.message||'رمزگذاری انجام نشد','error')}}
+async function sendEncryptedFile(){const file=document.getElementById('encChatFile').files[0],key=document.getElementById('encKey').value.trim();if(!file||!key){alert('کلید را وارد و یک فایل انتخاب کن.');return}if(file.size>MAX_FILE_BYTES){alert('حداکثر اندازهٔ فایل ۲۵ مگابایت است.');return}try{const header=new TextEncoder().encode(JSON.stringify({phraseGuardFile:1,name:file.name,type:file.type||'application/octet-stream',lastModified:file.lastModified})+'\n');const original=new Uint8Array(await file.arrayBuffer()),payload=new Uint8Array(header.length+original.length);payload.set(header);payload.set(original,header.length);const out=await encryptBytes(payload,key);chatBubble(document.getElementById('encChatMessages'),'📎 '+file.name+' • فایل رمز‌شده',out,'outgoing',[{label:'دانلود فایل رمز‌شده',run:()=>downloadBlob(new Blob([out],{type:'text/plain;charset=utf-8'}),file.name+'.pgf')},{label:'کپی خروجی',run:()=>copyChatValue(out)}]);document.getElementById('encChatFile').value='';document.getElementById('encChatFileName').textContent='فایلی انتخاب نشده'}catch(e){chatBubble(document.getElementById('encChatMessages'),'خطا',e.message||'رمزگذاری فایل ناموفق بود','error')}}
+async function receiveEncryptedText(){
+ const input=document.getElementById('decChatInput'),text=input.value.trim(),key=document.getElementById('decKey').value.trim(),host=document.getElementById('decChatMessages');
+ if(!key||!text){alert('کلید و پیام رمز‌شده را وارد کن.');return}
+ // Each encrypted message is independently prefixed; support multiple newline-separated messages.
+ const chunks=text.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
+ if(chunks.length>1 && chunks.every(x=>/^(pg1:|pg2:|pgf1:)/.test(x))){
+   let ok=0;
+   for(let i=0;i<chunks.length;i++){
+     const item=chunks[i];
+     try{
+       if(item.startsWith(FILE_PREFIX)){const payload=await decryptBytes(item,key);await restorePayloadInChat(payload,host)}
+       else {const plain=await decrypt(item,key);chatBubble(host,'پیام '+(i+1)+' از '+chunks.length+' • رمزگشایی‌شده',plain,'outgoing',[{label:'کپی متن',run:()=>copyChatValue(plain)},{label:'دانلود .txt',run:()=>downloadBlob(new Blob([plain],{type:'text/plain;charset=utf-8'}),'decrypted-message-'+(i+1)+'.txt')}]);}
+       ok++;
+     }catch(e){chatBubble(host,'پیام '+(i+1)+' رمزگشایی نشد','کلید اشتباه است یا این پیام خراب شده است.','error')}
+   }
+   if(ok)input.value='';
+   return;
+ }
+ try{
+   if(text.startsWith(FILE_PREFIX)){const payload=await decryptBytes(text,key);await restorePayloadInChat(payload,host);}
+   else {const plain=await decrypt(text,key);chatBubble(host,'پیام رمزگشایی‌شده • '+new Date().toLocaleTimeString(),plain,'outgoing',[{label:'کپی متن',run:()=>copyChatValue(plain)},{label:'دانلود .txt',run:()=>downloadBlob(new Blob([plain],{type:'text/plain;charset=utf-8'}),'decrypted-message.txt')}]);}
+   input.value='';
+ }catch(e){chatBubble(host,'رمزگشایی ناموفق','کلید اشتباه است یا دادهٔ رمز‌شده خراب شده است.','error')}
+}
+async function receiveEncryptedFile(){const file=document.getElementById('decChatFile').files[0],key=document.getElementById('decKey').value.trim();if(!file||!key){alert('کلید را وارد و فایل رمز‌شده را انتخاب کن.');return}try{const text=await file.text();if(text.trim().startsWith(FILE_PREFIX)){const payload=await decryptBytes(text.trim(),key);await restorePayloadInChat(payload,document.getElementById('decChatMessages'))}else{const plain=await decrypt(text.trim(),key);chatBubble(document.getElementById('decChatMessages'),'پیام متنی بازیابی‌شده از فایل',plain,'outgoing',[{label:'کپی متن',run:()=>copyChatValue(plain)},{label:'دانلود متن',run:()=>downloadBlob(new Blob([plain],{type:'text/plain;charset=utf-8'}),'decrypted-message.txt')}])}document.getElementById('decChatFile').value='';document.getElementById('decChatFileName').textContent='فایلی انتخاب نشده'}catch(e){chatBubble(document.getElementById('decChatMessages'),'رمزگشایی فایل ناموفق','کلید اشتباه است یا فایل ناقص/دست‌کاری‌شده است.','error')}}
+async function restorePayloadInChat(payload,host){let n=-1;for(let i=0;i<payload.length;i++){if(payload[i]===10){n=i;break}}if(n<0)throw new Error('سرآیند فایل نامعتبر است');const meta=JSON.parse(new TextDecoder().decode(payload.slice(0,n)));if(meta.phraseGuardFile!==1||typeof meta.name!=='string'||!meta.name.trim())throw new Error('اطلاعات فایل نامعتبر است');const data=payload.slice(n+1),name=meta.name.replace(/[\\/:*?"<>|\x00-\x1F]/g,'_');chatBubble(host,'✅ فایل رمزگشایی‌شده • '+name,'محتوا با موفقیت بازیابی شد. برای ذخیره روی دستگاه دکمهٔ دانلود را بزن.','outgoing',[{label:'دانلود فایل اصلی',run:()=>downloadBlob(new Blob([data],{type:meta.type||'application/octet-stream'}),name)}])}
+async function copyToClipboard(value){
+  try { if(navigator.clipboard && navigator.clipboard.writeText){await navigator.clipboard.writeText(value);return true;} } catch(e) {}
+  const ta=document.createElement('textarea');ta.value=value;ta.setAttribute('readonly','');ta.style.position='fixed';ta.style.top='0';ta.style.left='-9999px';ta.style.opacity='0';document.body.appendChild(ta);ta.focus();ta.select();ta.setSelectionRange(0,ta.value.length);let ok=false;try{ok=document.execCommand('copy')}catch(e){}document.body.removeChild(ta);return ok;
+}
+async function copyChatValue(value){const ok=await copyToClipboard(value);if(ok){const status=document.getElementById('chatStatus');if(status)status.textContent='در کلیپ‌بورد کپی شد ✓';}else{alert('مرورگر اجازهٔ کپی خودکار نداد. لطفاً خروجی را انتخاب و دستی کپی کن.');}}
+
+document.addEventListener("DOMContentLoaded",()=>{renderChat();});
+</script>
+</body>
+</html>
