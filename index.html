@@ -117,25 +117,27 @@
     .chat-welcome strong { display: block; color: var(--text); font-size: 1rem; margin-bottom: 6px; }
     .chat-welcome p { font-size: 0.82rem; line-height: 1.6; }
 
-    /* Bubbles */
+    /* Bubbles — در RTL: me = راست (پیام من)، them = چپ (پاسخ سیستم) */
     .bubble {
-      max-width: 88%;
+      max-width: 85%;
       padding: 10px 12px;
-      border-radius: 12px;
+      border-radius: 14px;
       position: relative;
-      animation: fadeIn 0.2s ease;
+      animation: fadeIn 0.22s ease;
       word-break: break-word;
     }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
-    .bubble.outgoing {
-      align-self: flex-end;
-      background: var(--outgoing);
-      border-bottom-left-radius: 4px;
-    }
-    .bubble.incoming {
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+    /* پیام کاربر → سمت راست */
+    .bubble.me {
       align-self: flex-start;
-      background: var(--incoming);
+      background: var(--outgoing);
       border-bottom-right-radius: 4px;
+    }
+    /* پاسخ سیستم (رمزشده / رمزگشایی‌شده) → سمت چپ */
+    .bubble.them {
+      align-self: flex-end;
+      background: var(--incoming);
+      border-bottom-left-radius: 4px;
     }
     .bubble.error {
       align-self: center;
@@ -182,6 +184,7 @@
       font-size: 0.72rem;
       cursor: pointer;
       text-decoration: none;
+      display: inline-block;
     }
 
     /* ===== COMPOSER ===== */
@@ -344,6 +347,50 @@
       line-height: 1.55;
       margin-top: 6px;
     }
+    .menu-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .menu-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      width: 100%;
+      text-align: right;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px 14px;
+      color: var(--text);
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .menu-item:active { background: #2a3a44; }
+    .menu-item-muted { opacity: 0.7; }
+    .menu-icon {
+      font-size: 1.35rem;
+      width: 36px;
+      height: 36px;
+      display: grid;
+      place-items: center;
+      background: rgba(124,92,252,0.12);
+      border-radius: 10px;
+      flex-shrink: 0;
+    }
+    .menu-text {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .menu-text strong {
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+    .menu-text small {
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
     .key-status {
       display: flex;
       align-items: center;
@@ -450,10 +497,29 @@
   <div class="sheet" id="menuSheet">
     <div class="sheet-handle"></div>
     <h3>منو</h3>
-    <button class="btn-success" style="width:100%;margin-bottom:10px;" onclick="openGenerateSheet()">🔑 ساخت کلید جدید</button>
-    <button class="btn-secondary" style="width:100%;margin-bottom:10px;" onclick="clearChat()">🧹 پاک کردن تاریخچه چت</button>
-    <button class="btn-secondary" style="width:100%;" onclick="closeSheets()">بستن</button>
-    <p class="hint" style="margin-top:16px;text-align:center;">Phrase Guard • نسخه ۳.۳۰ • پردازش محلی</p>
+    <div class="menu-list">
+      <button class="menu-item" onclick="openGenerateSheet()">
+        <span class="menu-icon">🔑</span>
+        <span class="menu-text">
+          <strong>ساخت کلید جدید</strong>
+          <small>۱۲ یا ۲۴ کلمه • آفلاین یا موقت</small>
+        </span>
+      </button>
+      <button class="menu-item" onclick="clearChat()">
+        <span class="menu-icon">🧹</span>
+        <span class="menu-text">
+          <strong>پاک کردن تاریخچه</strong>
+          <small>پیام‌های این صفحه حذف می‌شوند</small>
+        </span>
+      </button>
+      <button class="menu-item menu-item-muted" onclick="closeSheets()">
+        <span class="menu-icon">✕</span>
+        <span class="menu-text">
+          <strong>بستن</strong>
+        </span>
+      </button>
+    </div>
+    <p class="hint" style="margin-top:18px;text-align:center;">Phrase Guard • نسخه ۳.۳۰ • پردازش محلی</p>
   </div>
 
   <!-- GENERATE SHEET -->
@@ -752,7 +818,7 @@ function clearWelcome() {
   if (w) w.remove();
 }
 
-function addBubble(content, kind = 'outgoing', meta = '', actions = []) {
+function addBubble(content, kind = 'me', meta = '', actions = [], isMono = false) {
   clearWelcome();
   const area = $('chatArea');
   const b = document.createElement('div');
@@ -764,17 +830,26 @@ function addBubble(content, kind = 'outgoing', meta = '', actions = []) {
     b.appendChild(m);
   }
   const body = document.createElement('div');
-  body.className = 'bubble-body' + (kind === 'outgoing' && content.startsWith('pg') ? ' mono' : '');
+  body.className = 'bubble-body' + (isMono ? ' mono' : '');
   body.textContent = content;
   b.appendChild(body);
   if (actions.length) {
     const row = document.createElement('div');
     row.className = 'bubble-actions';
     actions.forEach(a => {
-      const btn = document.createElement('button');
-      btn.textContent = a.label;
-      btn.onclick = a.run;
-      row.appendChild(btn);
+      if (a.href) {
+        const link = document.createElement('a');
+        link.textContent = a.label;
+        link.href = a.href;
+        link.download = a.download || 'download';
+        link.rel = 'noopener';
+        row.appendChild(link);
+      } else {
+        const btn = document.createElement('button');
+        btn.textContent = a.label;
+        btn.onclick = a.run;
+        row.appendChild(btn);
+      }
     });
     b.appendChild(row);
   }
@@ -785,6 +860,16 @@ function addBubble(content, kind = 'outgoing', meta = '', actions = []) {
 
 function addError(msg) {
   addBubble(msg, 'error');
+}
+
+function makeDownloadAction(text, filename) {
+  const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  return {
+    label: '⬇️ دانلود',
+    href: url,
+    download: filename || 'phrase-guard.txt'
+  };
 }
 
 function setProcessing(on) {
@@ -808,21 +893,26 @@ async function encryptText() {
   if (!text.trim()) return;
   setProcessing(true);
   try {
+    // پیام کاربر (راست)
+    addBubble(text, 'me', 'شما • ' + new Date().toLocaleTimeString('fa-IR'));
+
     let out, note = '';
     if (isTemporaryKey) {
       const data = await encryptViaBot(text, currentKey);
       out = data.ciphertext;
       const mins = Math.max(1, Math.round((data.remaining_seconds || 0) / 60));
-      note = `موقت • ~${mins} دقیقه`;
+      note = `رمزشده (موقت • ~${mins} دقیقه)`;
     } else {
       out = await encryptLocal(text, currentKey);
-      note = 'محلی';
+      note = 'رمزشده (محلی)';
     }
-    addBubble(out, 'outgoing', note + ' • ' + new Date().toLocaleTimeString('fa-IR'), [
+    // پاسخ سیستم (چپ)
+    addBubble(out, 'them', note + ' • ' + new Date().toLocaleTimeString('fa-IR'), [
       { label: '📋 کپی', run: () => copyVal(out) },
-      { label: '⬇️ دانلود', run: () => downloadText(out, 'phrase-guard.txt') }
-    ]);
+      makeDownloadAction(out, 'phrase-guard.txt')
+    ], true);
     $('msgInput').value = '';
+    $('msgInput').style.height = 'auto';
   } catch (e) {
     addError(e.message || 'رمزگذاری ناموفق');
   } finally {
@@ -836,6 +926,9 @@ async function decryptText() {
   if (!text) return;
   setProcessing(true);
   try {
+    // پیام رمزشده کاربر (راست)
+    addBubble(text, 'me', 'رمزشده • ' + new Date().toLocaleTimeString('fa-IR'), [], true);
+
     const isEph = text.startsWith('pge2:') || text.startsWith('pgfe1:');
     let plain;
     if (isEph) {
@@ -844,10 +937,12 @@ async function decryptText() {
     } else {
       plain = await decryptLocal(text, currentKey);
     }
-    addBubble(plain, 'incoming', 'رمزگشایی شد • ' + new Date().toLocaleTimeString('fa-IR'), [
+    // متن اصلی (چپ)
+    addBubble(plain, 'them', 'رمزگشایی شد • ' + new Date().toLocaleTimeString('fa-IR'), [
       { label: '📋 کپی', run: () => copyVal(plain) }
     ]);
     $('msgInput').value = '';
+    $('msgInput').style.height = 'auto';
   } catch (e) {
     addError(e.message || 'کلید اشتباه یا پیام خراب است');
   } finally {
@@ -860,6 +955,8 @@ async function encryptFile() {
   if (selectedFile.size > MAX_FILE_BYTES) { alert('حداکثر ۲۵ مگابایت'); return; }
   setProcessing(true);
   try {
+    addBubble('📎 ' + selectedFile.name, 'me', 'فایل شما • ' + new Date().toLocaleTimeString('fa-IR'));
+
     const header = new TextEncoder().encode(JSON.stringify({
       phraseGuardFile: 1,
       name: selectedFile.name,
@@ -871,10 +968,11 @@ async function encryptFile() {
     payload.set(header);
     payload.set(original, header.length);
     const out = await encryptBytesLocal(payload, currentKey);
-    addBubble(out, 'outgoing', '📎 ' + selectedFile.name, [
+    const fname = (selectedFile.name || 'file') + '.pgf';
+    addBubble(out, 'them', 'فایل رمزشده • ' + selectedFile.name, [
       { label: '📋 کپی', run: () => copyVal(out) },
-      { label: '⬇️ دانلود', run: () => downloadText(out, (selectedFile.name || 'file') + '.pgf') }
-    ]);
+      makeDownloadAction(out, fname)
+    ], true);
     clearFile();
   } catch (e) {
     addError(e.message || 'رمزگذاری فایل ناموفق');
@@ -889,17 +987,17 @@ async function decryptFile() {
   try {
     const text = await selectedFile.text();
     const trimmed = text.trim();
+    addBubble('📎 ' + selectedFile.name, 'me', 'فایل رمزشده • ' + new Date().toLocaleTimeString('fa-IR'));
+
     if (trimmed.startsWith('pge2:') || trimmed.startsWith('pgfe1:')) {
       const data = await decryptViaBot(trimmed, currentKey);
       if (data.type === 'file') {
-        // simplified – show as text for now
-        addBubble('فایل موقت بازیابی شد (از ربات)', 'incoming');
+        addBubble('فایل موقت بازیابی شد (از ربات)', 'them');
       } else {
-        addBubble(data.plaintext, 'incoming');
+        addBubble(data.plaintext, 'them', 'رمزگشایی شد');
       }
     } else if (trimmed.startsWith(FILE_PREFIX)) {
       const payload = await decryptBytesLocal(trimmed, currentKey);
-      // parse header
       let n = -1;
       for (let i = 0; i < payload.length; i++) if (payload[i] === 10) { n = i; break; }
       if (n < 0) throw new Error('سرآیند نامعتبر');
@@ -907,17 +1005,12 @@ async function decryptFile() {
       const data = payload.slice(n + 1);
       const blob = new Blob([data], { type: meta.type || 'application/octet-stream' });
       const url = URL.createObjectURL(blob);
-      addBubble('فایل بازیابی شد: ' + meta.name, 'incoming', '', [
-        { label: '⬇️ دانلود', run: () => {
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = meta.name || 'restored';
-          a.click();
-        }}
+      addBubble('✅ ' + (meta.name || 'فایل'), 'them', 'فایل بازیابی شد', [
+        { label: '⬇️ دانلود فایل', href: url, download: meta.name || 'restored-file' }
       ]);
     } else {
       const plain = await decryptLocal(trimmed, currentKey);
-      addBubble(plain, 'incoming');
+      addBubble(plain, 'them', 'رمزگشایی شد');
     }
     clearFile();
   } catch (e) {
