@@ -550,11 +550,9 @@
 
 <script>
 /* ===== CORE CRYPTO (from previous version, cleaned) ===== */
-const FIXED_SALT = new TextEncoder().encode("PhraseGuard-v2.2-Salt!");
 const ITERATIONS = 250000;
 const IV_LEN = 12;
 const SALT_LEN = 16;
-const PREFIX_OLD = "pg1:";
 const PREFIX_NEW = "pg2:";
 const FILE_PREFIX = "pgf1:";
 const BOT_URL = "https://phrase-guard-bot.onrender.com";
@@ -586,7 +584,7 @@ function toggleKeyVisibility() {
 
 function isEncryptedPayload(text) {
   const t = (text || '').trim();
-  return /^(pg1:|pg2:|pgf1:|pge2:|pgfe1:)/.test(t);
+  return /^(pg2:|pgf1:|pge2:|pgfe1:)/.test(t);
 }
 
 function openKeySheet() {
@@ -693,27 +691,15 @@ async function encryptLocal(plaintext, passphrase) {
 }
 
 async function decryptLocal(encryptedText, passphrase) {
-  let message = encryptedText.trim();
-  let raw, salt, iv, ciphertext;
-  if (message.startsWith(PREFIX_NEW)) {
-    raw = base64ToBytes(message.slice(PREFIX_NEW.length));
-    if (raw.length <= SALT_LEN + IV_LEN) throw new Error("پیام نامعتبر");
-    salt = raw.slice(0, SALT_LEN);
-    iv = raw.slice(SALT_LEN, SALT_LEN + IV_LEN);
-    ciphertext = raw.slice(SALT_LEN + IV_LEN);
-  } else if (message.startsWith(PREFIX_OLD)) {
-    raw = base64ToBytes(message.slice(PREFIX_OLD.length));
-    if (raw.length <= IV_LEN) throw new Error("پیام نامعتبر");
-    salt = FIXED_SALT;
-    iv = raw.slice(0, IV_LEN);
-    ciphertext = raw.slice(IV_LEN);
-  } else {
-    raw = base64ToBytes(message);
-    if (raw.length <= IV_LEN) throw new Error("پیام نامعتبر");
-    salt = FIXED_SALT;
-    iv = raw.slice(0, IV_LEN);
-    ciphertext = raw.slice(IV_LEN);
+  const message = encryptedText.trim();
+  if (!message.startsWith(PREFIX_NEW)) {
+    throw new Error("فرمت پیام پشتیبانی نمی‌شود. فقط pg2: معتبر است.");
   }
+  const raw = base64ToBytes(message.slice(PREFIX_NEW.length));
+  if (raw.length <= SALT_LEN + IV_LEN) throw new Error("پیام نامعتبر");
+  const salt = raw.slice(0, SALT_LEN);
+  const iv = raw.slice(SALT_LEN, SALT_LEN + IV_LEN);
+  const ciphertext = raw.slice(SALT_LEN + IV_LEN);
   const key = await deriveKey(passphrase, salt, ["decrypt"]);
   const decrypted = await crypto.subtle.decrypt({ name: "AES-GCM", iv }, key, ciphertext);
   return new TextDecoder().decode(decrypted);
@@ -847,12 +833,18 @@ function addBubble(content, kind = 'me', meta = '', actions = [], isMono = false
     const row = document.createElement('div');
     row.className = 'bubble-actions';
     actions.forEach(a => {
-      if (a.href) {
+      if (a.blob) {
+        const btn = document.createElement('button');
+        btn.textContent = a.label || '⬇️ دانلود';
+        btn.onclick = () => saveBlob(a.blob, a.filename || 'download');
+        row.appendChild(btn);
+      } else if (a.href) {
         const link = document.createElement('a');
         link.textContent = a.label;
         link.href = a.href;
         link.download = a.download || 'download';
         link.rel = 'noopener';
+        link.target = '_blank';
         row.appendChild(link);
       } else {
         const btn = document.createElement('button');
@@ -872,13 +864,66 @@ function addError(msg) {
   addBubble(msg, 'error');
 }
 
-function makeDownloadAction(text, filename) {
-  const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+function isTelegramWebView() {
+  const ua = navigator.userAgent || '';
+  return !!(window.Telegram && window.Telegram.WebApp) ||
+    /Telegram/i.test(ua) ||
+    /WebView/i.test(ua) && /Mobile/i.test(ua);
+}
+
+/** دانلود سازگار با مرورگر عادی + WebView تلگرام */
+async function saveBlob(blob, filename) {
+  const name = filename || 'phrase-guard.bin';
+
+  // 1) Web Share با فایل واقعی (بهترین در موبایل و تلگرام)
+  try {
+    if (navigator.share && navigator.canShare) {
+      const file = new File([blob], name, { type: blob.type || 'application/octet-stream' });
+      if (navigator.canShare({ files: [file] })) {
+        await navigator.share({ files: [file], title: name });
+        return;
+      }
+    }
+  } catch (e) {
+    if (e && e.name === 'AbortError') return;
+  }
+
+  // 2) لینک download معمولی
   const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = name;
+  a.rel = 'noopener';
+  a.style.display = 'none';
+  document.body.appendChild(a);
+
+  if (isTelegramWebView()) {
+    // در تلگرام: باز کردن لینک + راهنما
+    a.target = '_blank';
+    a.click();
+    setTimeout(() => {
+      alert(
+        'اگر فایل ذخیره نشد:\n' +
+        '• روی دکمه دانلود لمس طولانی کن → Save / دانلود\n' +
+        '• یا از منوی ⋮ مرورگر تلگرام «Open in browser» را بزن\n' +
+        '• یا متن را کپی کن و در یک فایل ذخیره کن'
+      );
+    }, 400);
+  } else {
+    a.click();
+  }
+
+  setTimeout(() => {
+    try { a.remove(); URL.revokeObjectURL(url); } catch (_) {}
+  }, 60000);
+}
+
+function makeDownloadAction(text, filename) {
+  const blob = new Blob([String(text)], { type: 'text/plain;charset=utf-8' });
   return {
     label: '⬇️ دانلود',
-    href: url,
-    download: filename || 'phrase-guard.txt'
+    blob: blob,
+    filename: filename || 'phrase-guard.txt'
   };
 }
 
@@ -1002,6 +1047,65 @@ async function encryptFile() {
   }
 }
 
+/** نمایش فایل/عکس بازیابی‌شده داخل چت */
+function showRestoredMedia(bytes, meta) {
+  const mime = (meta && meta.type) || 'application/octet-stream';
+  const fname = (meta && meta.name) || 'restored-file';
+  const blob = new Blob([bytes], { type: mime });
+  const isImage = String(mime).startsWith('image/');
+
+  clearWelcome();
+  const area = $('chatArea');
+  const b = document.createElement('div');
+  b.className = 'bubble them';
+
+  const m = document.createElement('div');
+  m.className = 'bubble-meta';
+  m.textContent = isImage ? 'تصویر بازیابی شد' : ('فایل بازیابی شد • ' + fname);
+  b.appendChild(m);
+
+  if (isImage) {
+    const img = document.createElement('img');
+    img.src = URL.createObjectURL(blob);
+    img.alt = fname;
+    img.style.cssText = 'display:block;width:100%;max-height:320px;object-fit:contain;border-radius:10px;margin:4px 0 8px;background:#0a1218;';
+    b.appendChild(img);
+    const tip = document.createElement('div');
+    tip.style.cssText = 'font-size:0.72rem;color:#8696a0;margin-bottom:6px;';
+    tip.textContent = isTelegramWebView()
+      ? 'لمس طولانی روی عکس → ذخیره تصویر'
+      : 'راست‌کلیک / لمس طولانی برای ذخیره';
+    b.appendChild(tip);
+  } else {
+    const body = document.createElement('div');
+    body.className = 'bubble-body';
+    body.textContent = fname + ' (' + blob.size.toLocaleString('fa-IR') + ' بایت)';
+    b.appendChild(body);
+  }
+
+  const row = document.createElement('div');
+  row.className = 'bubble-actions';
+  const btn = document.createElement('button');
+  btn.textContent = isImage ? '⬇️ ذخیره / اشتراک' : '⬇️ دانلود / اشتراک';
+  btn.onclick = () => saveBlob(blob, fname);
+  row.appendChild(btn);
+  b.appendChild(row);
+
+  area.appendChild(b);
+  area.scrollTop = area.scrollHeight;
+}
+
+function parseFilePayload(payload) {
+  let n = -1;
+  for (let i = 0; i < payload.length; i++) if (payload[i] === 10) { n = i; break; }
+  if (n < 0) throw new Error('سرآیند فایل نامعتبر است');
+  const meta = JSON.parse(new TextDecoder().decode(payload.slice(0, n)));
+  if (meta.phraseGuardFile !== 1) throw new Error('فرمت فایل پشتیبانی نمی‌شود');
+  const data = payload.slice(n + 1);
+  if (!data.length) throw new Error('محتوای فایل خالی است');
+  return { meta, data };
+}
+
 async function decryptFile() {
   if (!selectedFile || !currentKey) { if (!currentKey) openKeySheet(); return; }
   setProcessing(true);
@@ -1010,28 +1114,24 @@ async function decryptFile() {
     const trimmed = text.trim();
     addBubble('📎 ' + selectedFile.name, 'me', 'فایل رمزشده • ' + new Date().toLocaleTimeString('fa-IR'));
 
-    if (trimmed.startsWith('pge2:') || trimmed.startsWith('pgfe1:')) {
+    if (trimmed.startsWith('pgfe1:') || trimmed.startsWith('pge2:')) {
       const data = await decryptViaBot(trimmed, currentKey);
-      if (data.type === 'file') {
-        addBubble('فایل موقت بازیابی شد (از ربات)', 'them');
+      if (data.type === 'file' && data.payload_b64) {
+        const payload = base64ToBytes(data.payload_b64);
+        const { meta, data: bytes } = parseFilePayload(payload);
+        showRestoredMedia(bytes, meta);
       } else {
-        addBubble(data.plaintext, 'them', 'رمزگشایی شد');
+        addBubble(data.plaintext || 'بازیابی شد', 'them', 'رمزگشایی شد');
       }
     } else if (trimmed.startsWith(FILE_PREFIX)) {
       const payload = await decryptBytesLocal(trimmed, currentKey);
-      let n = -1;
-      for (let i = 0; i < payload.length; i++) if (payload[i] === 10) { n = i; break; }
-      if (n < 0) throw new Error('سرآیند نامعتبر');
-      const meta = JSON.parse(new TextDecoder().decode(payload.slice(0, n)));
-      const data = payload.slice(n + 1);
-      const blob = new Blob([data], { type: meta.type || 'application/octet-stream' });
-      const url = URL.createObjectURL(blob);
-      addBubble('✅ ' + (meta.name || 'فایل'), 'them', 'فایل بازیابی شد', [
-        { label: '⬇️ دانلود فایل', href: url, download: meta.name || 'restored-file' }
-      ]);
-    } else {
+      const { meta, data: bytes } = parseFilePayload(payload);
+      showRestoredMedia(bytes, meta);
+    } else if (trimmed.startsWith(PREFIX_NEW)) {
       const plain = await decryptLocal(trimmed, currentKey);
       addBubble(plain, 'them', 'رمزگشایی شد');
+    } else {
+      throw new Error('فرمت پشتیبانی نمی‌شود. فقط pg2: و pgf1: / pgfe1:');
     }
     clearFile();
   } catch (e) {
@@ -1099,6 +1199,14 @@ $('msgInput').addEventListener('keydown', e => {
 
 // Init
 updateKeyStatus();
+try {
+  if (window.Telegram && Telegram.WebApp) {
+    Telegram.WebApp.ready();
+    Telegram.WebApp.expand();
+    if (Telegram.WebApp.setHeaderColor) Telegram.WebApp.setHeaderColor('#111b21');
+    if (Telegram.WebApp.setBackgroundColor) Telegram.WebApp.setBackgroundColor('#0b141a');
+  }
+} catch (_) {}
 </script>
 </body>
 </html>
