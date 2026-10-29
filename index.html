@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Phrase Guard 3.13</title>
+  <title>Phrase Guard 3.14</title>
   <style>:root{--bg:#0f0f13;--card:#1a1a22;--primary:#7c5cfc;--text:#f0f0f5;--muted:#9a9aab;--success:#22c55e;--error:#ef4444;--border:#2a2a35;--encrypt:#0ea5e9;--decrypt:#8b5cf6;--generate:#10b981;}*{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;}body{background:var(--bg);color:var(--text);min-height:100vh;padding:16px;line-height:1.6;}.container{max-width:480px;margin:0 auto;}header{text-align:center;margin-bottom:22px;}header h1{font-size:1.55rem;font-weight:700;background:linear-gradient(135deg,#a78bfa,#7c5cfc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:4px;}header p{color:var(--muted);font-size:0.88rem;}.tabs{display:flex;gap:6px;margin-bottom:18px;background:var(--card);padding:5px;border-radius:14px;border:1px solid var(--border);}.tab{flex:1;text-align:center;padding:11px 6px;border-radius:10px;font-weight:600;font-size:0.88rem;cursor:pointer;color:var(--muted);border:none;background:transparent;}.tab.active{background:var(--primary);color:white;}.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:18px;margin-bottom:14px;}label{display:block;font-size:0.82rem;color:var(--muted);margin-bottom:8px;font-weight:500;}textarea{width:100%;background:#121218;border:1px solid var(--border);border-radius:12px;color:var(--text);padding:14px;font-size:0.92rem;resize:vertical;outline:none;min-height:100px;}textarea:focus{border-color:var(--primary);}.ltr{direction:ltr;text-align:left;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;font-size:0.84rem;}.btn{display:block;width:100%;border:none;border-radius:12px;padding:15px;font-size:1.02rem;font-weight:600;cursor:pointer;margin-top:6px;color:white;}.btn:active{transform:scale(0.98);}.btn-encrypt{background:var(--encrypt);}.btn-decrypt{background:var(--decrypt);}.btn-generate{background:var(--generate);}.btn:disabled{opacity:0.55;cursor:not-allowed;}.result{display:none;margin-top:6px;}.result.show{display:block;}.result.success .box{border-color:var(--success);background:rgba(34,197,94,0.09);}.result.error .box{border-color:var(--error);background:rgba(239,68,68,0.09);}.box{border:1px solid var(--border);border-radius:12px;padding:14px;word-break:break-word;white-space:pre-wrap;font-size:0.98rem;line-height:1.65;}.result-title{font-size:0.78rem;color:var(--muted);margin-bottom:8px;}.actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;}.action-btn{flex:1;min-width:100px;background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:10px;padding:10px;font-size:0.82rem;cursor:pointer;}.action-btn:active{background:#2a2a35;}footer{text-align:center;margin-top:28px;color:var(--muted);font-size:0.72rem;}.spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,0.3);border-radius:50%;border-top-color:white;animation:spin 0.7s linear infinite;margin-right:8px;vertical-align:middle;}@keyframes spin{to{transform:rotate(360deg);}}.panel{display:none;}.panel.active{display:block;}.hint{font-size:0.78rem;color:var(--muted);margin-top:10px;line-height:1.5;}.word-list{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;}.word{background:#121218;border:1px solid var(--border);border-radius:8px;padding:6px 10px;font-size:0.85rem;direction:ltr;}.count-label{display:block;margin:0 0 10px;font-weight:700;color:var(--text,inherit);}.word-count-picker{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:8px;}.count-option{appearance:none;border:1px solid var(--border,#d7dce3);border-radius:14px;background:var(--card,rgba(127,127,127,.04));color:inherit;min-height:76px;padding:12px 8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;transition:border-color .18s ease,background .18s ease,transform .18s ease,box-shadow .18s ease;}.count-option:hover{border-color:var(--accent,#6477db);transform:translateY(-1px);}.count-option:focus-visible{outline:3px solid rgba(100,119,219,.28);outline-offset:2px;}.count-option.is-selected{border:2px solid var(--accent,#6477db);background:var(--accent-soft,rgba(100,119,219,.11));box-shadow:0 0 0 3px rgba(100,119,219,.08);}.count-number{font-size:1.35rem;line-height:1.2;font-weight:800;font-variant-numeric:tabular-nums;}.count-unit{font-size:.82rem;opacity:.8;}.count-help{margin:0 0 14px;font-size:.82rem;line-height:1.7;opacity:.72;}@media (max-width:380px){.word-count-picker{gap:6px;}.count-option{min-height:68px;border-radius:11px;}}.key-mode-picker{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:0 0 12px;}.mode-option{appearance:none;border:1px solid var(--border,#d7dce3);border-radius:14px;background:var(--card,rgba(127,127,127,.04));color:inherit;min-height:76px;padding:12px 10px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;cursor:pointer;transition:border-color .18s ease,background .18s ease,transform .18s ease,box-shadow .18s ease;}.mode-option:hover{border-color:var(--accent,#6477db);transform:translateY(-1px);}.mode-option:focus-visible{outline:3px solid rgba(100,119,219,.28);outline-offset:2px;}.mode-option.is-selected{border:2px solid var(--accent,#6477db);background:var(--accent-soft,rgba(100,119,219,.11));box-shadow:0 0 0 3px rgba(100,119,219,.08);}.mode-title{font-weight:800;font-size:.98rem;}.mode-subtitle{font-size:.78rem;opacity:.72;}.mode-panel{border:1px solid var(--border,#d7dce3);border-radius:12px;padding:12px;margin-bottom:14px;font-size:.88rem;line-height:1.8;}.mode-panel[hidden]{display:none !important;}.mode-panel input{width:100%;box-sizing:border-box;border:1px solid var(--border,#d7dce3);border-radius:10px;background:var(--input,transparent);color:inherit;padding:12px;font:inherit;}.mode-panel input:focus{outline:2px solid rgba(100,119,219,.3);border-color:var(--accent,#6477db);}[hidden]{display:none !important;}
 .chat-shell{border:1px solid var(--border);border-radius:18px;overflow:hidden;background:#101923;margin-bottom:14px;box-shadow:0 12px 35px #0003}.chat-head{display:flex;align-items:center;gap:11px;padding:14px;background:#202d3b;border-bottom:1px solid #344253}.avatar{width:44px;height:44px;flex-shrink:0;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,#087ee1,#5740dc);font-size:1.35rem}.chat-head strong{display:block;font-size:1rem}.chat-head small{display:block;color:#a9bacb;font-size:.76rem}.lock-pill{margin-right:auto;font-size:.68rem;color:#9ce6bd;border:1px solid #326b55;border-radius:20px;padding:4px 7px;white-space:nowrap}.keybar{position:relative;background:#182431;padding:12px;border-bottom:1px solid #344253}.keybar label{margin-bottom:5px;color:#c4d2df}.key-input-row{display:flex;align-items:stretch;gap:8px}.keybar input{width:100%;min-width:0;flex:1;border:1px solid #415266;border-radius:10px;background:#0e1721;color:#fff;padding:12px;direction:ltr;text-align:left}.key-clear{position:static;flex-shrink:0;background:#29394a;border:1px solid #415266;border-radius:9px;color:#dce8f3;padding:8px 10px;font-size:.76rem;cursor:pointer}.keybar p{color:#9dafc0;font-size:.72rem;margin-top:7px}.chat-log{min-height:250px;max-height:48vh;overflow-y:auto;padding:15px 12px;display:flex;flex-direction:column;gap:12px;background-color:#0f1b28;background-image:radial-gradient(#243648 1px,transparent 1px);background-size:18px 18px}.chat-welcome{margin:auto;text-align:center;color:#aebdcb;font-size:1.8rem;padding:25px 10px}.chat-welcome strong{font-size:.95rem;color:#e5edf5}.chat-welcome p{font-size:.78rem;margin-top:5px}.bubble{max-width:94%;align-self:flex-start;background:#243748;border:1px solid #354b5d;border-radius:14px 14px 14px 4px;padding:11px;color:#f1f6fa;overflow-wrap:anywhere;white-space:pre-wrap}.bubble.outgoing{align-self:flex-end;background:#075e54;border-color:#087568;border-radius:14px 14px 4px 14px}.bubble.error{background:#48252b;border-color:#85404b}.bubble-title{font-size:.75rem;color:#b9d7e8;margin-bottom:7px}.bubble-content{direction:ltr;text-align:left;font-family:ui-monospace,monospace;font-size:.76rem;max-height:130px;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere}.bubble-actions{display:flex;gap:6px;margin-top:9px}.bubble-actions button{background:#142632;border:1px solid #496171;color:#e2edf5;border-radius:8px;padding:7px 9px;font-size:.72rem}.composer{display:flex;align-items:flex-end;gap:7px;padding:10px;background:#202d3b;border-top:1px solid #344253}.composer textarea{min-height:42px;max-height:120px;resize:vertical;flex:1;background:#111d29;border-color:#405264;border-radius:18px;padding:11px 13px;color:white}.attach-btn{display:grid;place-items:center;width:40px;height:42px;border-radius:50%;background:#314457;color:white;font-size:1.3rem;cursor:pointer;margin:0}.send-btn{width:42px;height:42px;flex-shrink:0;border:0;border-radius:50%;background:#0788e8;color:white;font-size:1.3rem;cursor:pointer}.decrypt-send{background:#8255df}.file-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;background:#182431;padding:9px 12px}.file-row span{font-size:.72rem;color:#b5c4d2;flex:1;min-width:100px;overflow-wrap:anywhere}.file-row .action-btn{min-width:0;flex:0 0 auto;padding:8px;font-size:.72rem}.chat-shell .hint{padding:0 12px 12px;color:#aab9c7}.panel#panel-generate{margin-bottom:20px}
 </style>
@@ -105,7 +105,7 @@
       </div>
     </div>
 
-    <footer>Phrase Guard • پردازش محلی در مرورگر • نسخه ۳.۱۳</footer>
+    <footer>Phrase Guard • پردازش محلی در مرورگر • نسخه ۳.۱۴</footer>
   </div>
 
 <script>const _0 = new TextEncoder().encode("PhraseGuard-v2.2-Salt!");
@@ -320,8 +320,10 @@ const ciphertext = raw.slice(_3 + _2);
 const key = await deriveKey(passphrase, salt,["decrypt"]);
 return new Uint8Array(await crypto.subtle.decrypt({ name: "AES-GCM", iv }, key, ciphertext));
 }
+function isTelegramWebView(){
+  return /Telegram/i.test(navigator.userAgent || '') || /WebView/i.test(navigator.userAgent || '');
+}
 function downloadBlob(blob, filename){
-  // Robust download that works better on mobile browsers (iOS/Android).
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
@@ -329,14 +331,11 @@ function downloadBlob(blob, filename){
   a.rel = "noopener";
   a.style.display = "none";
   document.body.appendChild(a);
-  // Synchronous click preserves user-gesture on most browsers.
   a.click();
-  // Keep the node briefly — Safari sometimes needs it.
   setTimeout(() => {
     try { a.remove(); } catch (_) {}
     try { URL.revokeObjectURL(url); } catch (_) {}
   }, 2500);
-  // Fallback hint if nothing seems to happen (common on some mobile WebViews).
   return url;
 }
 async function copyText(id){
@@ -436,33 +435,63 @@ async function restorePayloadInChat(payload,host){
   if(meta.phraseGuardFile!==1||typeof meta.name!=='string'||!meta.name.trim()) throw new Error('اطلاعات فایل نامعتبر است');
   const data=payload.slice(n+1);
   if(!data.length) throw new Error('محتوای فایل خالی است');
-  const name=meta.name.replace(/[\\/:*?"<>|\x00-\x1F]/g,'_').replace(/^\.+$/,'restored-file') || 'restored-file';
+  const name=(meta.name.replace(/[\\/:*?"<>|\x00-\x1F]/g,'_').replace(/^\.+$/,'restored-file') || 'restored-file');
   const mime=meta.type||'application/octet-stream';
   const blob=new Blob([data],{type:mime});
-  const actions=[
-    {label:'دانلود فایل اصلی', run:()=>{
-      downloadBlob(blob, name);
-      // Mobile fallback: also open in new tab so user can long-press → Save
-      try {
-        if(/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)){
-          const u=URL.createObjectURL(blob);
-          setTimeout(()=>{ window.open(u,'_blank'); setTimeout(()=>URL.revokeObjectURL(u), 60000); }, 400);
-        }
-      } catch(_){}
-    }}
-  ];
-  if(String(mime).startsWith('image/')){
-    actions.unshift({label:'نمایش تصویر', run:()=>{
-      const u=URL.createObjectURL(blob);
-      const w=window.open(u,'_blank');
-      if(!w) alert('پاپ‌آپ مسدود است. اجازهٔ پنجرهٔ جدید را بده یا از دکمهٔ دانلود استفاده کن.');
-      setTimeout(()=>URL.revokeObjectURL(u), 120000);
-    }});
+  const sizeLabel=data.length.toLocaleString('fa-IR')+' بایت';
+  const isImage=String(mime).startsWith('image/');
+  const welcome=host.querySelector('.chat-welcome'); if(welcome) welcome.remove();
+  const b=document.createElement('div'); b.className='bubble outgoing';
+  const t=document.createElement('div'); t.className='bubble-title';
+  t.textContent='✅ فایل رمزگشایی‌شده • '+name; b.appendChild(t);
+  const c=document.createElement('div'); c.className='bubble-content';
+  c.style.direction='rtl'; c.style.textAlign='right'; c.style.fontFamily='inherit'; c.style.fontSize='0.85rem';
+  c.textContent='محتوا بازیابی شد ('+sizeLabel+').';
+  b.appendChild(c);
+  if(isImage){
+    const imgWrap=document.createElement('div');
+    imgWrap.style.cssText='margin-top:10px;border-radius:10px;overflow:hidden;border:1px solid #496171;';
+    const img=document.createElement('img');
+    const imgUrl=URL.createObjectURL(blob);
+    img.src=imgUrl; img.alt=name;
+    img.style.cssText='display:block;width:100%;max-height:280px;object-fit:contain;background:#0a1218;';
+    imgWrap.appendChild(img); b.appendChild(imgWrap);
+    // keep URL alive while bubble is visible; revoke on page unload is fine
   }
-  chatBubble(host,'✅ فایل رمزگشایی‌شده • '+name,
-    'محتوا با موفقیت بازیابی شد ('+data.length.toLocaleString('fa-IR')+' بایت). برای ذخیره روی دستگاه از دکمه‌ها استفاده کن.',
-    'outgoing', actions);
+  const row=document.createElement('div'); row.className='bubble-actions';
+  // Real <a download> works better than JS click in many WebViews
+  const a=document.createElement('a');
+  const dlUrl=URL.createObjectURL(blob);
+  a.href=dlUrl; a.download=name; a.rel='noopener';
+  a.textContent='⬇️ دانلود / ذخیره';
+  a.style.cssText='background:#142632;border:1px solid #496171;color:#e2edf5;border-radius:8px;padding:7px 9px;font-size:.72rem;text-decoration:none;display:inline-block;';
+  a.addEventListener('click', function(ev){
+    // In Telegram WebView, download attr is often ignored; show guidance
+    if(isTelegramWebView()){
+      setTimeout(function(){
+        alert('اگر فایل ذخیره نشد: روی همین دکمه لمس طولانی بزن و «دانلود» یا «Save link」 را انتخاب کن.\\n\\nیا فایل را در Chrome باز کن.');
+      }, 600);
+    }
+  });
+  row.appendChild(a);
+  if(isImage){
+    const tip=document.createElement('div');
+    tip.style.cssText='margin-top:8px;font-size:0.72rem;color:#aab9c7;line-height:1.5;';
+    tip.textContent=isTelegramWebView()
+      ? 'در تلگرام: روی عکس لمس طولانی → ذخیره تصویر. برای فایل کامل از دکمهٔ دانلود با لمس طولانی استفاده کن.'
+      : 'می‌توانی روی تصویر راست‌کلیک / لمس طولانی کنی و ذخیره کنی.';
+    b.appendChild(tip);
+  } else if(isTelegramWebView()){
+    const tip=document.createElement('div');
+    tip.style.cssText='margin-top:8px;font-size:0.72rem;color:#aab9c7;line-height:1.5;';
+    tip.textContent='در مرورگر تلگرام دانلود محدود است. روی دکمه لمس طولانی بزن یا فایل را در Chrome باز کن.';
+    b.appendChild(tip);
+  }
+  b.appendChild(row);
+  host.appendChild(b); host.scrollTop=host.scrollHeight;
+  try { saveChatLog(host.id,{title:t.textContent,content:'[file restored] '+name,kind:'outgoing',originalText:null,createdAt:Date.now()}); } catch(_){}
 }
+
 async function shareEncryptedOutput(value, filename='phrase-guard-message.txt'){
   const isFile=String(value).startsWith(FILE_PREFIX) || filename.toLowerCase().endsWith('.pgf');
   try{
