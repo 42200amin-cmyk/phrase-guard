@@ -423,21 +423,46 @@ return new Uint8Array(await crypto.subtle.decrypt({ name: "AES-GCM", iv }, key, 
 function isTelegramWebView(){
   return /Telegram/i.test(navigator.userAgent || '') || /WebView/i.test(navigator.userAgent || '');
 }
-function downloadBlob(blob, filename){
+function isMobileBrowser(){
+  const ua = navigator.userAgent || '';
+  return /Android|iPhone|iPad|iPod|Mobile|Silk/i.test(ua);
+}
+/** Build a REAL, visible, tappable download link (works in Chrome Android). */
+function makeDownloadLink(blob, filename, label){
   const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
+  const a = document.createElement('a');
   a.href = url;
-  a.download = filename || "download.bin";
-  a.rel = "noopener";
-  a.style.position = "fixed";
-  a.style.left = "-9999px";
+  a.download = filename || 'download.bin';
+  a.rel = 'noopener';
+  a.target = '_blank';
+  a.textContent = label || ('\u2b07\ufe0f \u062f\u0627\u0646\u0644\u0648\u062f' + (filename ? ' ' + filename : ''));
+  a.style.cssText = 'background:#0ea5e9;border:1px solid #0284c7;color:#fff;border-radius:8px;padding:7px 12px;font-size:.75rem;text-decoration:none;display:inline-block;font-weight:600;';
+  a.addEventListener('click', function(){
+    setTimeout(function(){ try { URL.revokeObjectURL(url); } catch(_){} }, 300000);
+  });
+  return a;
+}
+/** Native share sheet with a real File (best path on Android Chrome / Telegram). */
+async function shareBlobAsFile(blob, filename, title){
+  try{
+    if(!navigator.share) return false;
+    const file = new File([blob], filename || 'download.bin', { type: blob.type || 'application/octet-stream' });
+    if(navigator.canShare && !navigator.canShare({ files: [file] })) return false;
+    await navigator.share({ files: [file], title: title || 'Phrase Guard' });
+    return true;
+  }catch(e){
+    if(e && e.name === 'AbortError') return true;
+    return false;
+  }
+}
+function downloadBlob(blob, filename){
+  const a = makeDownloadLink(blob, filename);
   document.body.appendChild(a);
-  try { a.click(); } catch(_){}
-  // Keep URL alive longer — user may need a moment on mobile
-  setTimeout(() => {
-    try { a.remove(); } catch (_) {}
-  }, 60000);
-  return url;
+  if(!isMobileBrowser()){
+    try { a.click(); } catch(_){}
+  }
+  setTimeout(() => { try { a.remove(); } catch (_) {} }, 300000);
+  return a.href;
 }
 function downloadTextFile(text, filename){
   const blob = new Blob([String(text)], {type: "text/plain;charset=utf-8"});
@@ -455,18 +480,22 @@ function showEncryptedResult(host, title, content, filename){
   copyBtn.onclick = () => copyChatValue(content);
   row.appendChild(copyBtn);
   const blob = new Blob([String(content)], {type: 'text/plain;charset=utf-8'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = filename || 'phrase-guard.pgf';
-  a.rel = 'noopener';
-  a.textContent = '⬇️ دانلود';
-  a.style.cssText = 'background:#0ea5e9;border:1px solid #0284c7;color:#fff;border-radius:8px;padding:7px 12px;font-size:.75rem;text-decoration:none;display:inline-block;font-weight:600;';
+  const fname = filename || 'phrase-guard.pgf';
+  const a = makeDownloadLink(blob, fname, '⬇️ دانلود فایل رمز‌شده');
   row.appendChild(a);
+  const shareBtn = document.createElement('button');
+  shareBtn.textContent = '📤 اشتراک‌گذاری';
+  shareBtn.onclick = async function(){
+    const done = await shareBlobAsFile(blob, fname, 'Phrase Guard — خروجی رمز‌شده');
+    if(!done){
+      alert('اشتراک‌گذاری مستقیم در این مرورگر در دسترس نیست. لینک «دانلود» را لمس کن یا از «کپی» استفاده کن.');
+    }
+  };
+  row.appendChild(shareBtn);
   b.appendChild(row);
   const tip = document.createElement('div');
   tip.style.cssText = 'margin-top:8px;font-size:0.72rem;color:#aab9c7;line-height:1.5;';
-  tip.textContent = 'اگر دانلود نشد: روی «دانلود» لمس طولانی بزن یا اول «کپی» کن و در فایل متنی ذخیره کن.';
+  tip.textContent = 'روی «دانلود» ضربه بزن تا فایل ذخیره شود. اگر باز نشد: لمس طولانی روی دکمه → «Save link» یا «دانلود»، یا از «اشتراک‌گذاری» استفاده کن. اگر باز هم نشد: «کپی» را بزن و در یک فایل متنی با نام ' + fname + ' بچسبان.';
   b.appendChild(tip);
   host.appendChild(b); host.scrollTop = host.scrollHeight;
   try { saveChatLog(host.id,{title, content, kind:'outgoing', originalText:null, createdAt:Date.now()}); } catch(_){}
@@ -771,10 +800,7 @@ function renderRestoredFileBubble(host, name, mime, blob, persistFlag){
     imgWrap.appendChild(img); b.appendChild(imgWrap);
   }
   const row=document.createElement('div'); row.className='bubble-actions';
-  const a=document.createElement('a');
-  const dlUrl=URL.createObjectURL(blob);
-  a.href=dlUrl; a.download=name; a.rel='noopener';
-  a.textContent='⬇️ دانلود / ذخیره';
+  const a=makeDownloadLink(blob, name, '⬇️ دانلود / ذخیره');
   a.style.cssText='background:#142632;border:1px solid #496171;color:#e2edf5;border-radius:8px;padding:7px 9px;font-size:.72rem;text-decoration:none;display:inline-block;';
   a.addEventListener('click', function(){
     if(isTelegramWebView()){
@@ -814,8 +840,12 @@ async function shareEncryptedOutput(value, filename='phrase-guard-message.txt'){
     }
   }catch(e){if(e && (e.name==='AbortError'))return;}
   if(isFile){
-    alert('اشتراک‌گذاری مستقیم فایل در این مرورگر در دسترس نیست. فایل رمز‌شده دانلود می‌شود؛ سپس آن را در تلگرام به چت دلخواه پیوست کن.');
-    downloadBlob(new Blob([value],{type:'text/plain;charset=utf-8'}),filename);
+    const fb = new Blob([value],{type:'text/plain;charset=utf-8'});
+    const okShare = await shareBlobAsFile(fb, filename, 'Phrase Guard — خروجی رمز‌شده');
+    if(!okShare){
+      alert('اشتراک‌گذاری مستقیم فایل در این مرورگر در دسترس نیست. لینک «دانلود» را لمس کن تا فایل ذخیره شود؛ سپس آن را در تلگرام به چت دلخواه پیوست کن.');
+      downloadBlob(fb, filename);
+    }
   }else{
     const ok=await copyToClipboard(value);
     if(ok) alert('این مرورگر منوی اشتراک‌گذاری را پشتیبانی نکرد؛ متن رمز‌شده کپی شد. حالا آن را در چت تلگرام بچسبان.');
