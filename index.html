@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Phrase Guard 3.16</title>
+  <title>Phrase Guard 3.17</title>
   <style>:root{--bg:#0f0f13;--card:#1a1a22;--primary:#7c5cfc;--text:#f0f0f5;--muted:#9a9aab;--success:#22c55e;--error:#ef4444;--border:#2a2a35;--encrypt:#0ea5e9;--decrypt:#8b5cf6;--generate:#10b981;}*{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;}body{background:var(--bg);color:var(--text);min-height:100vh;padding:16px;line-height:1.6;}.container{max-width:480px;margin:0 auto;}header{text-align:center;margin-bottom:22px;}header h1{font-size:1.55rem;font-weight:700;background:linear-gradient(135deg,#a78bfa,#7c5cfc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:4px;}header p{color:var(--muted);font-size:0.88rem;}.tabs{display:flex;gap:6px;margin-bottom:18px;background:var(--card);padding:5px;border-radius:14px;border:1px solid var(--border);}.tab{flex:1;text-align:center;padding:11px 6px;border-radius:10px;font-weight:600;font-size:0.88rem;cursor:pointer;color:var(--muted);border:none;background:transparent;}.tab.active{background:var(--primary);color:white;}.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:18px;margin-bottom:14px;}label{display:block;font-size:0.82rem;color:var(--muted);margin-bottom:8px;font-weight:500;}textarea{width:100%;background:#121218;border:1px solid var(--border);border-radius:12px;color:var(--text);padding:14px;font-size:0.92rem;resize:vertical;outline:none;min-height:100px;}textarea:focus{border-color:var(--primary);}.ltr{direction:ltr;text-align:left;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;font-size:0.84rem;}.btn{display:block;width:100%;border:none;border-radius:12px;padding:15px;font-size:1.02rem;font-weight:600;cursor:pointer;margin-top:6px;color:white;}.btn:active{transform:scale(0.98);}.btn-encrypt{background:var(--encrypt);}.btn-decrypt{background:var(--decrypt);}.btn-generate{background:var(--generate);}.btn:disabled{opacity:0.55;cursor:not-allowed;}.result{display:none;margin-top:6px;}.result.show{display:block;}.result.success .box{border-color:var(--success);background:rgba(34,197,94,0.09);}.result.error .box{border-color:var(--error);background:rgba(239,68,68,0.09);}.box{border:1px solid var(--border);border-radius:12px;padding:14px;word-break:break-word;white-space:pre-wrap;font-size:0.98rem;line-height:1.65;}.result-title{font-size:0.78rem;color:var(--muted);margin-bottom:8px;}.actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;}.action-btn{flex:1;min-width:100px;background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:10px;padding:10px;font-size:0.82rem;cursor:pointer;}.action-btn:active{background:#2a2a35;}footer{text-align:center;margin-top:28px;color:var(--muted);font-size:0.72rem;}.spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,0.3);border-radius:50%;border-top-color:white;animation:spin 0.7s linear infinite;margin-right:8px;vertical-align:middle;}@keyframes spin{to{transform:rotate(360deg);}}.panel{display:none;}.panel.active{display:block;}.hint{font-size:0.78rem;color:var(--muted);margin-top:10px;line-height:1.5;}.word-list{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;}.word{background:#121218;border:1px solid var(--border);border-radius:8px;padding:6px 10px;font-size:0.85rem;direction:ltr;}.count-label{display:block;margin:0 0 10px;font-weight:700;color:var(--text,inherit);}.word-count-picker{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:8px;}.count-option{appearance:none;border:1px solid var(--border,#d7dce3);border-radius:14px;background:var(--card,rgba(127,127,127,.04));color:inherit;min-height:76px;padding:12px 8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;transition:border-color .18s ease,background .18s ease,transform .18s ease,box-shadow .18s ease;}.count-option:hover{border-color:var(--accent,#6477db);transform:translateY(-1px);}.count-option:focus-visible{outline:3px solid rgba(100,119,219,.28);outline-offset:2px;}.count-option.is-selected{border:2px solid var(--accent,#6477db);background:var(--accent-soft,rgba(100,119,219,.11));box-shadow:0 0 0 3px rgba(100,119,219,.08);}.count-number{font-size:1.35rem;line-height:1.2;font-weight:800;font-variant-numeric:tabular-nums;}.count-unit{font-size:.82rem;opacity:.8;}.count-help{margin:0 0 14px;font-size:.82rem;line-height:1.7;opacity:.72;}@media (max-width:380px){.word-count-picker{gap:6px;}.count-option{min-height:68px;border-radius:11px;}}.key-mode-picker{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:0 0 12px;}.mode-option{appearance:none;border:1px solid var(--border,#d7dce3);border-radius:14px;background:var(--card,rgba(127,127,127,.04));color:inherit;min-height:76px;padding:12px 10px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;cursor:pointer;transition:border-color .18s ease,background .18s ease,transform .18s ease,box-shadow .18s ease;}.mode-option:hover{border-color:var(--accent,#6477db);transform:translateY(-1px);}.mode-option:focus-visible{outline:3px solid rgba(100,119,219,.28);outline-offset:2px;}.mode-option.is-selected{border:2px solid var(--accent,#6477db);background:var(--accent-soft,rgba(100,119,219,.11));box-shadow:0 0 0 3px rgba(100,119,219,.08);}.mode-title{font-weight:800;font-size:.98rem;}.mode-subtitle{font-size:.78rem;opacity:.72;}.mode-panel{border:1px solid var(--border,#d7dce3);border-radius:12px;padding:12px;margin-bottom:14px;font-size:.88rem;line-height:1.8;}.mode-panel[hidden]{display:none !important;}.mode-panel input{width:100%;box-sizing:border-box;border:1px solid var(--border,#d7dce3);border-radius:10px;background:var(--input,transparent);color:inherit;padding:12px;font:inherit;}.mode-panel input:focus{outline:2px solid rgba(100,119,219,.3);border-color:var(--accent,#6477db);}[hidden]{display:none !important;}
 .chat-shell{border:1px solid var(--border);border-radius:18px;overflow:hidden;background:#101923;margin-bottom:14px;box-shadow:0 12px 35px #0003}.chat-head{display:flex;align-items:center;gap:11px;padding:14px;background:#202d3b;border-bottom:1px solid #344253}.avatar{width:44px;height:44px;flex-shrink:0;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,#087ee1,#5740dc);font-size:1.35rem}.chat-head strong{display:block;font-size:1rem}.chat-head small{display:block;color:#a9bacb;font-size:.76rem}.lock-pill{margin-right:auto;font-size:.68rem;color:#9ce6bd;border:1px solid #326b55;border-radius:20px;padding:4px 7px;white-space:nowrap}.keybar{position:relative;background:#182431;padding:12px;border-bottom:1px solid #344253}.keybar label{margin-bottom:5px;color:#c4d2df}.key-input-row{display:flex;align-items:stretch;gap:8px}.keybar input{width:100%;min-width:0;flex:1;border:1px solid #415266;border-radius:10px;background:#0e1721;color:#fff;padding:12px;direction:ltr;text-align:left}.key-clear{position:static;flex-shrink:0;background:#29394a;border:1px solid #415266;border-radius:9px;color:#dce8f3;padding:8px 10px;font-size:.76rem;cursor:pointer}.keybar p{color:#9dafc0;font-size:.72rem;margin-top:7px}.chat-log{min-height:250px;max-height:48vh;overflow-y:auto;padding:15px 12px;display:flex;flex-direction:column;gap:12px;background-color:#0f1b28;background-image:radial-gradient(#243648 1px,transparent 1px);background-size:18px 18px}.chat-welcome{margin:auto;text-align:center;color:#aebdcb;font-size:1.8rem;padding:25px 10px}.chat-welcome strong{font-size:.95rem;color:#e5edf5}.chat-welcome p{font-size:.78rem;margin-top:5px}.bubble{max-width:94%;align-self:flex-start;background:#243748;border:1px solid #354b5d;border-radius:14px 14px 14px 4px;padding:11px;color:#f1f6fa;overflow-wrap:anywhere;white-space:pre-wrap}.bubble.outgoing{align-self:flex-end;background:#075e54;border-color:#087568;border-radius:14px 14px 4px 14px}.bubble.error{background:#48252b;border-color:#85404b}.bubble-title{font-size:.75rem;color:#b9d7e8;margin-bottom:7px}.bubble-content{direction:ltr;text-align:left;font-family:ui-monospace,monospace;font-size:.76rem;max-height:130px;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere}.bubble-actions{display:flex;gap:6px;margin-top:9px}.bubble-actions button{background:#142632;border:1px solid #496171;color:#e2edf5;border-radius:8px;padding:7px 9px;font-size:.72rem}.composer{display:flex;align-items:flex-end;gap:7px;padding:10px;background:#202d3b;border-top:1px solid #344253}.composer textarea{min-height:42px;max-height:120px;resize:vertical;flex:1;background:#111d29;border-color:#405264;border-radius:18px;padding:11px 13px;color:white}.attach-btn{display:grid;place-items:center;width:40px;height:42px;border-radius:50%;background:#314457;color:white;font-size:1.3rem;cursor:pointer;margin:0}.send-btn{width:42px;height:42px;flex-shrink:0;border:0;border-radius:50%;background:#0788e8;color:white;font-size:1.3rem;cursor:pointer}.decrypt-send{background:#8255df}.file-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;background:#182431;padding:9px 12px}.file-row span{font-size:.72rem;color:#b5c4d2;flex:1;min-width:100px;overflow-wrap:anywhere}.file-row .action-btn{min-width:0;flex:0 0 auto;padding:8px;font-size:.72rem}.chat-shell .hint{padding:0 12px 12px;color:#aab9c7}.panel#panel-generate{margin-bottom:20px}
 </style>
@@ -97,7 +97,10 @@
     <div class="panel" id="panel-decrypt">
       <div class="chat-shell decrypt-shell">
         <div class="chat-head"><div class="avatar">🔓</div><div><strong>چت رمزگشایی</strong><small>پیام یا فایل رمز‌شده را وارد کن</small></div><span class="lock-pill">محلی و امن</span></div>
-        <div class="keybar"><label for="decKey">کلید / عبارت بازیابی</label><div class="key-input-row"><input id="decKey" type="password" autocomplete="off" placeholder="کلید پیام را وارد کن"/><button type="button" class="key-clear" onclick="clearSecret('decKey')">پاک‌کردن کلید</button></div><p>کلید باید دقیقاً با کلید زمان رمزگذاری یکی باشد. فرمت‌های pg1 (قدیمی) و pg2 (جدید) هر دو پشتیبانی می‌شوند.</p></div>
+        <div class="keybar"><label for="decKey">کلید / عبارت بازیابی</label><div class="key-input-row"><input id="decKey" type="password" autocomplete="off" placeholder="کلید پیام را وارد کن"/><button type="button" class="key-clear" onclick="clearSecret('decKey')">پاک‌کردن کلید</button></div>
+<label for="botApiUrl" style="margin-top:10px;">آدرس ربات برای پیام موقت (اختیاری)</label>
+<input id="botApiUrl" type="url" class="ltr" autocomplete="off" placeholder="https://your-app.onrender.com" style="width:100%;border:1px solid #415266;border-radius:10px;background:#0e1721;color:#fff;padding:12px;direction:ltr;text-align:left;margin-top:4px;"/>
+<p>کلید باید با زمان رمزگذاری یکی باشد. pg1/pg2 محلی‌اند. پیام‌های موقت pge2/pgfe1 فقط تا قبل از انقضا و با آدرس ربات رمزگشایی می‌شوند.</p></div>
         <div class="chat-log" id="decChatMessages"><div class="chat-welcome">📨<br><strong>پیام رمز‌شده را دریافت کن</strong><p>متن رمز‌شده را پایین بچسبان یا فایل .pgf/.txt را انتخاب کن.</p></div></div>
         <div class="composer"><label class="attach-btn" for="decChatFile" title="انتخاب فایل رمز‌شده">📎</label><input id="decChatFile" type="file" hidden/><textarea id="decChatInput" rows="1" placeholder="متن رمز‌شده را اینجا بچسبان…"></textarea><button class="send-btn decrypt-send" onclick="receiveEncryptedChat()" aria-label="رمزگشایی و ارسال">➤</button></div>
         <div class="file-row"><span id="decChatFileName">فایلی انتخاب نشده</span><button class="action-btn" onclick="clearSelectedDecFile()">لغو پیوست</button><button class="action-btn" onclick="clearVisibleChat('decChatMessages')">پاک‌کردن نمایش</button></div>
@@ -105,7 +108,7 @@
       </div>
     </div>
 
-    <footer>Phrase Guard • پردازش محلی در مرورگر • نسخه ۳.۱۶</footer>
+    <footer>Phrase Guard • پردازش محلی در مرورگر • نسخه ۳.۱۷</footer>
   </div>
 
 <script>const _0 = new TextEncoder().encode("PhraseGuard-v2.2-Salt!");
@@ -297,7 +300,40 @@ key = await deriveKey(passphrase, salt,["decrypt"]);
 const decrypted = await crypto.subtle.decrypt({ name: "AES-GCM", iv }, key, ciphertext);
 return new TextDecoder().decode(decrypted);
 }
-const FILE_PREFIX = "pgf1:";
+const FILE_PREFIX = "pgf1:"
+
+const BOT_API_URL_KEY = "phraseGuardBotApiUrl";
+function getBotApiUrl(){
+  const el = document.getElementById("botApiUrl");
+  let u = (el && el.value || "").trim().replace(/\/$/, "");
+  if(!u){
+    try { u = (localStorage.getItem(BOT_API_URL_KEY) || "").trim().replace(/\/$/, ""); } catch(_){}
+  }
+  return u;
+}
+function saveBotApiUrl(){
+  const el = document.getElementById("botApiUrl");
+  if(!el) return;
+  try { localStorage.setItem(BOT_API_URL_KEY, el.value.trim().replace(/\/$/, "")); } catch(_){}
+}
+async function decryptViaBotApi(ciphertext, passphrase){
+  const base = getBotApiUrl();
+  if(!base) throw new Error("برای پیام موقت، آدرس ربات را در فیلد بالا وارد کن (مثال: https://xxx.onrender.com)");
+  saveBotApiUrl();
+  const res = await fetch(base + "/api/decrypt", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ ciphertext, passphrase })
+  });
+  let data = null;
+  try { data = await res.json(); } catch(_){}
+  if(!res.ok || !data || !data.ok){
+    const err = (data && data.error) ? data.error : ("خطای سرور: " + res.status);
+    throw new Error(err);
+  }
+  return data;
+}
+;
 const MAX_FILE_BYTES = 25 * 1024 * 1024;
 async function encryptBytes(plainBytes, passphrase){
 const salt = crypto.getRandomValues(new Uint8Array(_3));
@@ -434,6 +470,7 @@ function chatBubble(host,title,content,kind='outgoing',actions=[],originalText=n
  host.appendChild(b);host.scrollTop=host.scrollHeight;return b;
 }
 document.addEventListener('DOMContentLoaded',()=>{
+ try{const u=localStorage.getItem(BOT_API_URL_KEY);const el=document.getElementById('botApiUrl');if(u&&el)el.value=u;}catch(_){}
  const ef=document.getElementById('encChatFile'),df=document.getElementById('decChatFile');
  ef?.addEventListener('change',()=>document.getElementById('encChatFileName').textContent=ef.files[0]?.name||'فایلی انتخاب نشده');
  df?.addEventListener('change',()=>document.getElementById('decChatFileName').textContent=df.files[0]?.name||'فایلی انتخاب نشده');
@@ -450,57 +487,85 @@ async function sendEncryptedFile(){const file=document.getElementById('encChatFi
 async function receiveEncryptedText(){
  const input=document.getElementById('decChatInput'),text=input.value.trim(),key=document.getElementById('decKey').value.trim(),host=document.getElementById('decChatMessages');
  if(!key||!text){alert('کلید و پیام رمز‌شده را وارد کن.');return}
- // Each encrypted message is independently prefixed; support multiple newline-separated messages.
+ saveBotApiUrl();
  const chunks=text.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
- if(chunks.length>1 && chunks.every(x=>/^(pg1:|pg2:|pgf1:)/.test(x))){
+ const isEphemeral = (s)=>s.startsWith('pge2:')||s.startsWith('pgfe1:');
+ if(chunks.length>1 && chunks.every(x=>/^(pg1:|pg2:|pgf1:|pge2:|pgfe1:)/.test(x))){
    let ok=0;
    for(let i=0;i<chunks.length;i++){
      const item=chunks[i];
      try{
-       if(item.startsWith(FILE_PREFIX)){const payload=await decryptBytes(item,key);await restorePayloadInChat(payload,host)}
-       else {const plain=await decrypt(item,key);chatBubble(host,'پیام '+(i+1)+' از '+chunks.length+' • رمزگشایی‌شده',plain,'outgoing',[{label:'کپی متن',run:()=>copyChatValue(plain)},{label:'دانلود .txt',run:()=>downloadBlob(new Blob([plain],{type:'text/plain;charset=utf-8'}),'decrypted-message-'+(i+1)+'.txt')}]);}
+       if(isEphemeral(item)){
+         const data=await decryptViaBotApi(item,key);
+         if(data.type==='file'){
+           const payload=base64ToBytes(data.payload_b64);
+           await restorePayloadInChat(payload,host);
+         } else {
+           const plain=data.plaintext;
+           chatBubble(host,'پیام موقت '+(i+1)+' از '+chunks.length+' • رمزگشایی‌شده',plain,'outgoing',[{label:'کپی متن',run:()=>copyChatValue(plain)},{label:'دانلود .txt',run:()=>downloadBlob(new Blob([plain],{type:'text/plain;charset=utf-8'}),'decrypted-message-'+(i+1)+'.txt')}]);
+         }
+       } else if(item.startsWith(FILE_PREFIX)){
+         const payload=await decryptBytes(item,key);await restorePayloadInChat(payload,host);
+       } else {
+         const plain=await decrypt(item,key);
+         chatBubble(host,'پیام '+(i+1)+' از '+chunks.length+' • رمزگشایی‌شده',plain,'outgoing',[{label:'کپی متن',run:()=>copyChatValue(plain)},{label:'دانلود .txt',run:()=>downloadBlob(new Blob([plain],{type:'text/plain;charset=utf-8'}),'decrypted-message-'+(i+1)+'.txt')}]);
+       }
        ok++;
-     }catch(e){chatBubble(host,'پیام '+(i+1)+' رمزگشایی نشد','کلید اشتباه است یا این پیام خراب شده است.','error')}
+     }catch(e){chatBubble(host,'پیام '+(i+1)+' رمزگشایی نشد',e.message||'کلید اشتباه یا پیام منقضی/خراب است.','error')}
    }
    if(ok)input.value='';
    return;
  }
  try{
-   if(text.startsWith(FILE_PREFIX)){const payload=await decryptBytes(text,key);await restorePayloadInChat(payload,host);}
-   else {const plain=await decrypt(text,key);chatBubble(host,'پیام رمزگشایی‌شده • '+new Date().toLocaleTimeString(),plain,'outgoing',[{label:'کپی متن',run:()=>copyChatValue(plain)},{label:'دانلود .txt',run:()=>downloadBlob(new Blob([plain],{type:'text/plain;charset=utf-8'}),'decrypted-message.txt')}]);}
+   if(isEphemeral(text)){
+     const data=await decryptViaBotApi(text,key);
+     if(data.type==='file'){
+       const payload=base64ToBytes(data.payload_b64);
+       await restorePayloadInChat(payload,host);
+     } else {
+       const plain=data.plaintext;
+       chatBubble(host,'پیام موقت رمزگشایی‌شده • '+new Date().toLocaleTimeString(),plain,'outgoing',[{label:'کپی متن',run:()=>copyChatValue(plain)},{label:'دانلود .txt',run:()=>downloadBlob(new Blob([plain],{type:'text/plain;charset=utf-8'}),'decrypted-message.txt')}]);
+     }
+   } else if(text.startsWith(FILE_PREFIX)){
+     const payload=await decryptBytes(text,key);await restorePayloadInChat(payload,host);
+   } else {
+     const plain=await decrypt(text,key);
+     chatBubble(host,'پیام رمزگشایی‌شده • '+new Date().toLocaleTimeString(),plain,'outgoing',[{label:'کپی متن',run:()=>copyChatValue(plain)},{label:'دانلود .txt',run:()=>downloadBlob(new Blob([plain],{type:'text/plain;charset=utf-8'}),'decrypted-message.txt')}]);
+   }
    input.value='';
- }catch(e){chatBubble(host,'رمزگشایی ناموفق','کلید اشتباه است یا دادهٔ رمز‌شده خراب شده است.','error')}
+ }catch(e){chatBubble(host,'رمزگشایی ناموفق',e.message||'کلید اشتباه، پیام منقضی، یا داده خراب است.','error')}
 }
-async function receiveEncryptedFile(){const file=document.getElementById('decChatFile').files[0],key=document.getElementById('decKey').value.trim();if(!file||!key){alert('کلید را وارد و فایل رمز‌شده را انتخاب کن.');return}try{const text=await file.text();if(text.trim().startsWith(FILE_PREFIX)){const payload=await decryptBytes(text.trim(),key);await restorePayloadInChat(payload,document.getElementById('decChatMessages'))}else{const plain=await decrypt(text.trim(),key);chatBubble(document.getElementById('decChatMessages'),'پیام متنی بازیابی‌شده از فایل',plain,'outgoing',[{label:'کپی متن',run:()=>copyChatValue(plain)},{label:'دانلود متن',run:()=>downloadBlob(new Blob([plain],{type:'text/plain;charset=utf-8'}),'decrypted-message.txt')}])}document.getElementById('decChatFile').value='';document.getElementById('decChatFileName').textContent='فایلی انتخاب نشده'}catch(e){chatBubble(document.getElementById('decChatMessages'),'رمزگشایی فایل ناموفق','کلید اشتباه است یا فایل ناقص/دست‌کاری‌شده است.','error')}}
-async function restorePayloadInChat(payload,host){
-  let n=-1;
-  for(let i=0;i<payload.length;i++){ if(payload[i]===10){ n=i; break; } }
-  if(n<0) throw new Error('سرآیند فایل نامعتبر است');
-  const meta=JSON.parse(new TextDecoder().decode(payload.slice(0,n)));
-  if(meta.phraseGuardFile!==1||typeof meta.name!=='string'||!meta.name.trim()) throw new Error('اطلاعات فایل نامعتبر است');
-  const data=payload.slice(n+1);
-  if(!data.length) throw new Error('محتوای فایل خالی است');
-  const name=(meta.name.replace(/[\\/:*?"<>|\x00-\x1F]/g,'_').replace(/^\.+$/,'restored-file') || 'restored-file');
-  const mime=meta.type||'application/octet-stream';
-  const blob=new Blob([data],{type:mime});
-  renderRestoredFileBubble(host, name, mime, blob, true);
-  // Persist for next session (base64). Skip if very large to avoid quota issues.
-  try {
-    if(data.length <= 8*1024*1024){
-      const b64 = bytesToBase64(data);
-      await saveChatLog(host.id, {
-        title: '✅ فایل رمزگشایی‌شده • '+name,
-        content: '',
-        kind: 'file-restored',
-        fileName: name,
-        fileMime: mime,
-        fileB64: b64,
-        originalText: null,
-        createdAt: Date.now()
-      });
+
+async function receiveEncryptedFile(){
+ const file=document.getElementById('decChatFile').files[0],key=document.getElementById('decKey').value.trim();
+ if(!file||!key){alert('کلید را وارد و فایل رمز‌شده را انتخاب کن.');return}
+ saveBotApiUrl();
+ try{
+  const text=await file.text();
+  const trimmed=text.trim();
+  if(trimmed.startsWith('pgfe1:')||trimmed.startsWith('pge2:')){
+    const data=await decryptViaBotApi(trimmed,key);
+    if(data.type==='file'){
+      const payload=base64ToBytes(data.payload_b64);
+      await restorePayloadInChat(payload,document.getElementById('decChatMessages'));
+    } else {
+      const plain=data.plaintext;
+      chatBubble(document.getElementById('decChatMessages'),'پیام موقت بازیابی‌شده از فایل',plain,'outgoing',[{label:'کپی متن',run:()=>copyChatValue(plain)},{label:'دانلود متن',run:()=>downloadBlob(new Blob([plain],{type:'text/plain;charset=utf-8'}),'decrypted-message.txt')}]);
     }
-  } catch(_){}
+  } else if(trimmed.startsWith(FILE_PREFIX)){
+    const payload=await decryptBytes(trimmed,key);
+    await restorePayloadInChat(payload,document.getElementById('decChatMessages'));
+  } else {
+    const plain=await decrypt(trimmed,key);
+    chatBubble(document.getElementById('decChatMessages'),'پیام متنی بازیابی‌شده از فایل',plain,'outgoing',[{label:'کپی متن',run:()=>copyChatValue(plain)},{label:'دانلود متن',run:()=>downloadBlob(new Blob([plain],{type:'text/plain;charset=utf-8'}),'decrypted-message.txt')}]);
+  }
+  document.getElementById('decChatFile').value='';
+  document.getElementById('decChatFileName').textContent='فایلی انتخاب نشده';
+ }catch(e){
+  chatBubble(document.getElementById('decChatMessages'),'رمزگشایی فایل ناموفق',e.message||'کلید اشتباه، منقضی، یا فایل خراب است.','error');
+ }
 }
+
 function renderRestoredFileBubble(host, name, mime, blob, persistFlag){
   const sizeLabel = blob.size.toLocaleString('fa-IR')+' بایت';
   const isImage = String(mime).startsWith('image/');
