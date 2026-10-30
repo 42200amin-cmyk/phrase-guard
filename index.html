@@ -596,6 +596,8 @@ const IV_LEN = 12;
 const SALT_LEN = 16;
 const PREFIX_NEW = "pg2:";
 const FILE_PREFIX = "pgf1:";
+const CHUNK_PREFIX = "pgfc:";
+const CHUNK_MAX = 3500;
 const BOT_URL = "https://phrase-guard-bot.onrender.com";
 const MAX_FILE_BYTES = 25 * 1024 * 1024;
 
@@ -621,23 +623,117 @@ function toggleKeyVisibility() {
   }
 }
 
+const pendingChunks = {};
+
 function normalizeCiphertext(text) {
   let t = String(text || '').trim();
-  // فاصله بعد از پیشوند (مثل pgf1 :)
-  t = t.replace(/^(pg2|pgf1|pge2|pgfe1)\s*:\s*/i, function (_, p) {
+  t = t.replace(/^(pg2|pgf1|pge2|pgfe1|pgfc)\s*:\s*/i, function (_, p) {
     return p.toLowerCase() + ':';
   });
+  if (/^pgfc:/i.test(t)) return t;
   const m = t.match(/^(pg2:|pgf1:|pge2:|pgfe1:)([\s\S]+)$/i);
-  if (m) {
-    // حذف فاصله و خط جدید داخل Base64 (کپی از چت موبایل)
-    return m[1].toLowerCase() + m[2].replace(/\s+/g, '');
-  }
+  if (m) return m[1].toLowerCase() + m[2].replace(/\s+/g, '');
   return t;
 }
 function isEncryptedPayload(text) {
-  const t = normalizeCiphertext(text);
-  return /^(pg2:|pgf1:|pge2:|pgfe1:)/.test(t);
+  const t = String(text || '').trim();
+  if (/pgfc:\s*\d+/i.test(t)) return true;
+  const n = normalizeCiphertext(t);
+  return /^(pg2:|pgf1:|pge2:|pgfe1:)/.test(n);
 }
+function splitCipherForShare(cipher) {
+  const full = String(cipher || '');
+  if (full.length <= CHUNK_MAX) return [full];
+  const id = Array.from(crypto.getRandomValues(new Uint8Array(4)))
+    .map(b => b.toString(16).padStart(2, '0')).join('');
+  const total = Math.ceil(full.length / CHUNK_MAX);
+  const parts = [];
+  for (let i = 0; i < total; i++) {
+    parts.push(
+      CHUNK_PREFIX + (i + 1) + '/' + total + ':' + id + ':' +
+      full.slice(i * CHUNK_MAX, (i + 1) * CHUNK_MAX)
+    );
+  }
+  return parts;
+}
+function parseChunkLine(line) {
+  const s = String(line || '').trim();
+  const m = s.match(/^pgfc:\s*(\d+)\s*\/\s*(\d+)\s*:\s*([a-fA-F0-9]+)\s*:([\s\S]+)$/i);
+  if (!m) return null;
+  return {
+    index: parseInt(m[1], 10),
+    total: parseInt(m[2], 10),
+    id: m[3].toLowerCase(),
+    data: m[4].replace(/\s+/g, '')
+  };
+}
+/** اگر چند تکه pgfc در متن باشد سر هم می‌کند؛ ناقص → null و وضعیت pending */
+function assembleChunkedInput(text) {
+  const lines = String(text || '').split(/\n+/).map(l => l.trim()).filter(Boolean);
+  const parsed = [];
+  for (const line of lines) {
+    const c = parseChunkLine(line);
+    if (c) parsed.push(c);
+  }
+  if (!parsed.length) return { done: false, reason: 'none' };
+
+  // همه تکه‌ها باید یک id داشته باشند
+  const id = parsed[0].id;
+  const total = parsed[0].total;
+  if (!pendingChunks[id]) pendingChunks[id] = { total: total, parts: {} };
+  const bag = pendingChunks[id];
+  bag.total = total;
+  for (const c of parsed) {
+    if (c.id !== id) continue;
+    bag.parts[c.index] = c.data;
+  }
+  const got = Object.keys(bag.parts).length;
+  if (got < bag.total) {
+    return {
+      done: false,
+      reason: 'partial',
+      id,
+      got,
+      total: bag.total
+    };
+  }
+  let full = '';
+  for (let i = 1; i <= bag.total; i++) {
+    if (!bag.parts[i]) {
+      return { done: false, reason: 'partial', id, got, total: bag.total };
+    }
+    full += bag.parts[i];
+  }
+  delete pendingChunks[id];
+  return { done: true, cipher: full };
+}
+async function shareCipherAsText(cipher) {
+  const parts = splitCipherForShare(cipher);
+  if (parts.length === 1) {
+    await copyVal(parts[0]);
+    addBubble('متن رمزشده کپی شد. می‌توانی در چت بفرستی.', 'them');
+    return;
+  }
+  const packageText = parts.join('\n\n');
+  try {
+    await navigator.clipboard.writeText(packageText);
+  } catch (_) {
+    copyVal(packageText);
+  }
+  addBubble(
+    'این داده برای یک پیام تلگرام خیلی بلند است.\n' +
+    parts.length + ' تکه ساخته و با هم کپی شد.\n\n' +
+    'گیرنده باید همه تکه‌ها را یکجا (یا پشت‌سرهم) در Phrase Guard بچسباند.\n\n' +
+    'تکه ۱:\n' + parts[0].slice(0, 80) + '…',
+    'them',
+    'اشتراک متنی',
+    parts.map((part, i) => ({
+      label: '📋 تکه ' + (i + 1) + '/' + parts.length,
+      run: () => copyVal(part)
+    }))
+  );
+}
+
 
 function openKeySheet() {
   closeSheets();
@@ -1076,6 +1172,7 @@ async function encryptText() {
     const cipherOut = out;
     addBubble(cipherOut, 'them', note + ' • ' + new Date().toLocaleTimeString('fa-IR'), [
       { label: '🔓 باز کردن', run: () => decryptPayloadFromCipher(cipherOut) },
+      { label: '📤 اشتراک متنی', run: () => shareCipherAsText(cipherOut) },
       { label: '📋 کپی', run: () => copyVal(cipherOut) },
       makeDownloadAction(cipherOut, 'phrase-guard.txt')
     ], true);
@@ -1137,9 +1234,29 @@ async function decryptText() {
   const rawInput = $('msgInput').value.trim();
   if (!currentKey) { openKeySheet(); return; }
   if (!rawInput) return;
-  addBubble(rawInput, 'me', 'رمزشده • ' + new Date().toLocaleTimeString('fa-IR'), [], true);
+  addBubble(rawInput.length > 500 ? (rawInput.slice(0, 240) + '…') : rawInput, 'me',
+    'رمزشده • ' + new Date().toLocaleTimeString('fa-IR'), [], true);
   $('msgInput').value = '';
   $('msgInput').style.height = 'auto';
+
+  if (/pgfc:\s*\d+/i.test(rawInput)) {
+    const asm = assembleChunkedInput(rawInput);
+    if (!asm.done) {
+      if (asm.reason === 'partial') {
+        addBubble(
+          'تکه‌های دریافت‌شده: ' + asm.got + ' از ' + asm.total +
+          '\nبقیه تکه‌ها را هم بفرست تا عکس/فایل کامل باز شود.',
+          'them',
+          'در انتظار تکه‌ها'
+        );
+      } else {
+        addError('فرمت تکه‌ها نامعتبر است');
+      }
+      return;
+    }
+    await decryptPayloadFromCipher(asm.cipher);
+    return;
+  }
   await decryptPayloadFromCipher(rawInput);
 }
 
@@ -1178,6 +1295,7 @@ async function encryptFile() {
     const cipherOut = out;
     addBubble(cipherOut, 'them', note, [
       { label: '🔓 باز کردن', run: () => decryptPayloadFromCipher(cipherOut) },
+      { label: '📤 اشتراک متنی', run: () => shareCipherAsText(cipherOut) },
       { label: '📋 کپی', run: () => copyVal(cipherOut) },
       makeDownloadAction(cipherOut, fname)
     ], true);
@@ -1321,9 +1439,10 @@ function clearFile() {
 }
 
 function copyVal(text) {
-  navigator.clipboard.writeText(text).then(() => {}).catch(() => {
+  const val = String(text || '');
+  return navigator.clipboard.writeText(val).catch(() => {
     const ta = document.createElement('textarea');
-    ta.value = text;
+    ta.value = val;
     document.body.appendChild(ta);
     ta.select();
     document.execCommand('copy');
