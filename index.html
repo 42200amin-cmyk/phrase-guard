@@ -621,8 +621,21 @@ function toggleKeyVisibility() {
   }
 }
 
+function normalizeCiphertext(text) {
+  let t = String(text || '').trim();
+  // فاصله بعد از پیشوند (مثل pgf1 :)
+  t = t.replace(/^(pg2|pgf1|pge2|pgfe1)\s*:\s*/i, function (_, p) {
+    return p.toLowerCase() + ':';
+  });
+  const m = t.match(/^(pg2:|pgf1:|pge2:|pgfe1:)([\s\S]+)$/i);
+  if (m) {
+    // حذف فاصله و خط جدید داخل Base64 (کپی از چت موبایل)
+    return m[1].toLowerCase() + m[2].replace(/\s+/g, '');
+  }
+  return t;
+}
 function isEncryptedPayload(text) {
-  const t = (text || '').trim();
+  const t = normalizeCiphertext(text);
   return /^(pg2:|pgf1:|pge2:|pgfe1:)/.test(t);
 }
 
@@ -1071,12 +1084,13 @@ async function encryptText() {
 }
 
 async function decryptText() {
-  const text = $('msgInput').value.trim();
+  const rawInput = $('msgInput').value.trim();
   if (!currentKey) { openKeySheet(); return; }
-  if (!text) return;
+  if (!rawInput) return;
+  const text = normalizeCiphertext(rawInput);
   setProcessing(true);
   try {
-    addBubble(text, 'me', 'رمزشده • ' + new Date().toLocaleTimeString('fa-IR'), [], true);
+    addBubble(rawInput, 'me', 'رمزشده • ' + new Date().toLocaleTimeString('fa-IR'), [], true);
 
     // فایل/عکس رمزشده که به‌صورت متن paste شده (pgf1: / pgfe1:)
     if (text.startsWith(FILE_PREFIX) || text.startsWith('pgfe1:')) {
@@ -1119,7 +1133,12 @@ async function decryptText() {
     $('msgInput').value = '';
     $('msgInput').style.height = 'auto';
   } catch (e) {
-    addError(e.message || 'کلید اشتباه یا پیام خراب است');
+    const msg = (e && e.message) ? e.message : '';
+    if (!msg || /operation failed|OperationError/i.test(msg)) {
+      addError('کلید اشتباه است یا متن رمزشده هنگام کپی خراب شده. از دکمه «کپی» استفاده کن، نه انتخاب دستی.');
+    } else {
+      addError(msg);
+    }
   } finally {
     setProcessing(false);
   }
@@ -1255,7 +1274,7 @@ async function decryptFile() {
   setProcessing(true);
   try {
     const text = await selectedFile.text();
-    const trimmed = text.trim();
+    const trimmed = normalizeCiphertext(text);
     addBubble('📎 ' + selectedFile.name, 'me', 'فایل رمزشده • ' + new Date().toLocaleTimeString('fa-IR'));
 
     if (trimmed.startsWith('pgfe1:') || trimmed.startsWith('pge2:')) {
