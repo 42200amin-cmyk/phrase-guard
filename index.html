@@ -535,6 +535,7 @@
     </div>
     <div class="sheet-actions">
       <button class="btn-primary" onclick="saveKey()">ذخیره کلید</button>
+      <button class="btn-secondary" onclick="copyCurrentKey()">کپی کلید</button>
       <button class="btn-secondary" onclick="clearKey()">پاک کردن</button>
     </div>
     <p class="hint" style="margin-top:14px;">کلید فقط در حافظه این مرورگر نگه داشته می‌شود و به جایی ارسال نمی‌شود (به جز حالت موقت ربات).</p>
@@ -798,6 +799,18 @@ function clearKey() {
   isTemporaryKey = false;
   $('keyInput').value = '';
   updateKeyStatus();
+}
+function copyCurrentKey() {
+  const val = (currentKey || ($('keyInput') && $('keyInput').value) || '').trim();
+  if (!val) {
+    alert('کلیدی برای کپی نیست');
+    return;
+  }
+  Promise.resolve(copyVal(val)).then(() => {
+    alert('کلید کپی شد');
+  }).catch(() => {
+    alert('کپی نشد؛ دستی انتخاب کن');
+  });
 }
 
 function selectCount(n) {
