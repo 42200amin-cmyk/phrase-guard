@@ -433,6 +433,31 @@
 
     .hidden { display: none !important; }
 
+    .tg-tip {
+      display: none;
+      align-items: flex-start;
+      gap: 8px;
+      background: rgba(245, 158, 11, 0.12);
+      border: 1px solid rgba(245, 158, 11, 0.35);
+      color: #fbbf24;
+      border-radius: 12px;
+      padding: 10px 12px;
+      margin-bottom: 8px;
+      font-size: 0.78rem;
+      line-height: 1.55;
+    }
+    .tg-tip.show { display: flex; }
+    .tg-tip span { flex: 1; }
+    .tg-tip button {
+      border: none;
+      background: transparent;
+      color: #fbbf24;
+      font-size: 1rem;
+      cursor: pointer;
+      padding: 0 4px;
+      flex-shrink: 0;
+    }
+
     .img-lightbox {
       position: fixed; inset: 0; z-index: 200;
       background: rgba(0,0,0,0.92);
@@ -478,6 +503,10 @@
     <div class="processing" id="processing">در حال پردازش...</div>
 
     <div class="composer-wrap">
+      <div class="tg-tip" id="tgFileTip">
+        <span>برای فایل و عکس، ترجیحاً از مرورگر معمولی استفاده کن؛ دانلود در مرورگر داخلی تلگرام محدود است.</span>
+        <button type="button" onclick="dismissTgFileTip()" title="بستن">✕</button>
+      </div>
       <div class="file-chip" id="fileChip">
         <span id="fileChipName">فایل</span>
         <button onclick="clearFile()">✕</button>
@@ -905,6 +934,21 @@ function addError(msg) {
   addBubble(msg, 'error');
 }
 
+
+function tgTipDismissed() {
+  try { return localStorage.getItem('pg_tg_tip_dismissed') === '1'; } catch (_) { return false; }
+}
+function dismissTgFileTip() {
+  try { localStorage.setItem('pg_tg_tip_dismissed', '1'); } catch (_) {}
+  const el = $('tgFileTip');
+  if (el) el.classList.remove('show');
+}
+function maybeShowTgFileTip() {
+  if (!isTelegramWebView() || tgTipDismissed()) return;
+  const el = $('tgFileTip');
+  if (el) el.classList.add('show');
+}
+
 function isTelegramWebView() {
   const ua = navigator.userAgent || '';
   return !!(window.Telegram && window.Telegram.WebApp) ||
@@ -914,6 +958,7 @@ function isTelegramWebView() {
 
 async function saveBlob(blob, filename) {
   const name = filename || 'phrase-guard.bin';
+  maybeShowTgFileTip();
 
   // 1) Web Share با فایل واقعی (بهترین در موبایل و تلگرام)
   try {
@@ -1221,6 +1266,7 @@ $('fileInput').addEventListener('change', () => {
     selectedFile = f;
     $('fileChipName').textContent = f.name;
     $('fileChip').classList.add('show');
+    maybeShowTgFileTip();
   }
 });
 function clearFile() {
