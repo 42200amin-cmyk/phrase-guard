@@ -725,6 +725,7 @@
       color: #fff; border-radius: 10px; padding: 10px 16px; font-size: 0.85rem; cursor: pointer;
     }
   </style>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
   <div class="app">
@@ -851,7 +852,7 @@
       </div>
     </div>
 
-    <p class="hint" style="margin-top:10px;text-align:center;" data-i18n="menuFooter">Phrase Guard • v3.37 • local processing</p>
+    <p class="hint" style="margin-top:10px;text-align:center;" data-i18n="menuFooter">Phrase Guard • v3.38 • local processing</p>
   </div>
 
   <div class="sheet" id="generateSheet">
@@ -905,7 +906,7 @@ const I18N = {
     mClearKeySub: 'از حافظه این دستگاه حذف می‌شود',
     mClearChat: 'پاک کردن تاریخچه',
     mClearChatSub: 'پیام‌های این صفحه حذف می‌شوند',
-    menuFooter: 'Phrase Guard • v3.37 • پردازش محلی',
+    menuFooter: 'Phrase Guard • v3.38 • پردازش محلی',
     welcomeTitle: 'چت امن Phrase Guard',
     welcomeBody: 'پیام عادی بفرست → رمز می‌شود\nپیام رمزشده بفرست → باز می‌شود',
     placeholder: 'پیام عادی یا رمزشده بنویس...',
@@ -966,7 +967,7 @@ tempOnlyBot: 'این پیام با کلید موقت ربات ساخته شده 
     mClearKeySub: 'Remove from this device memory',
     mClearChat: 'Clear history',
     mClearChatSub: 'Messages on this screen will be removed',
-    menuFooter: 'Phrase Guard • v3.37 • local processing',
+    menuFooter: 'Phrase Guard • v3.38 • local processing',
     welcomeTitle: 'Secure chat — Phrase Guard',
     welcomeBody: 'Send plain text → encrypts\nSend ciphertext → decrypts',
     placeholder: 'Type plain or encrypted message...',
@@ -1127,6 +1128,14 @@ function applyI18n() {
   initTheme();
 updateKeyStatus();
 
+document.getElementById('scanPaste') && document.getElementById('scanPaste').addEventListener('input', function () {
+  var v = (this.value || '').trim().replace(/\s/g, '');
+  if (v.length > 20 && /pg(qr:1:)?(pg[f]?e?[12]:)/.test(v)) {
+    setScanHint(currentLang === 'en' ? 'Looks good — tap decrypt' : 'درست به نظر می‌رسد — ادامه را بزن');
+  }
+});
+
+
 
 
 }
@@ -1281,20 +1290,51 @@ let _scanBusy = false;
 
 
 
+
+function isTelegramWebApp() {
+  try {
+    return !!(window.Telegram && Telegram.WebApp && Telegram.WebApp.showScanQrPopup);
+  } catch (_) { return false; }
+}
+
 async function openScanOverlay() {
   closeQr();
+  // اسکنر بومی تلگرام داخل مینی‌اپ
+  if (isTelegramWebApp()) {
+    try {
+      if (!window._pgQrHooked) {
+        window._pgQrHooked = true;
+        Telegram.WebApp.onEvent('qrTextReceived', function (ev) {
+          try { Telegram.WebApp.closeScanQrPopup(); } catch (_) {}
+          var data = (ev && (ev.data != null ? ev.data : ev)) || '';
+          if (typeof data !== 'string') data = String(data || '');
+          if (data) onQrScanned(data);
+        });
+      }
+      Telegram.WebApp.showScanQrPopup({
+        text: currentLang === 'en'
+          ? 'Scan Phrase Guard QR'
+          : 'QR مربوط به Phrase Guard را اسکن کن'
+      });
+      return;
+    } catch (e) {
+      console.warn('tg scan', e);
+    }
+  }
+
   const ov = $('scanOverlay');
   if (!ov) return;
   ov.classList.add('open');
   const ta = $('scanPaste');
   if (ta) { ta.value = ''; try { ta.focus(); } catch (_) {} }
   setScanHint(currentLang === 'en'
-    ? 'Scan with your phone camera/scanner, copy the text, paste here. Same decrypt flow as before.'
-    : 'با دوربین یا اسکنر گوشی QR را اسکن کن، متن را کپی و اینجا بچسبان. روند رمزگشایی مثل قبل است.');
+    ? '1) Phone Camera / QR scanner  2) Scan  3) Copy  4) Paste here'
+    : '۱) دوربین یا اسکنر گوشی  ۲) اسکن  ۳) کپی متن  ۴) اینجا بچسبان');
   const video = $('scanVideo');
   if (video) video.style.display = 'none';
   _scanBusy = false;
 }
+
 
 function setScanHint(msg) {
   const el = $('scanHint');
@@ -2336,7 +2376,7 @@ try {
 
 <div class="scan-overlay" id="scanOverlay">
   <div class="scan-hint" id="scanHint" style="max-width:340px;line-height:1.6;text-align:center;color:#e9d5ff;">
-    با دوربین یا اسکنر گوشی QR را اسکن کن، متن را کپی کن و اینجا بچسبان.
+    داخل تلگرام: اسکنر خود تلگرام باز می‌شود. بیرون: اسکن با گوشی → کپی → چسباندن اینجا.
   </div>
   <textarea id="scanPaste" rows="4" placeholder="pgqr:1:pg2:… یا خروجی اسکنر" style="width:min(340px,92vw);border-radius:12px;border:1px solid rgba(167,139,250,0.45);background:#0f172a;color:#e2e8f0;padding:12px;font-size:0.82rem;direction:ltr;text-align:left;resize:vertical;"></textarea>
   <div class="scan-actions">
