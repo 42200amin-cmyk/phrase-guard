@@ -1076,18 +1076,43 @@ async function decryptText() {
   if (!text) return;
   setProcessing(true);
   try {
-    // پیام رمزشده کاربر (راست)
     addBubble(text, 'me', 'رمزشده • ' + new Date().toLocaleTimeString('fa-IR'), [], true);
 
-    const isEph = text.startsWith('pge2:') || text.startsWith('pgfe1:');
+    // فایل/عکس رمزشده که به‌صورت متن paste شده (pgf1: / pgfe1:)
+    if (text.startsWith(FILE_PREFIX) || text.startsWith('pgfe1:')) {
+      let payload;
+      if (text.startsWith('pgfe1:')) {
+        const data = await decryptViaBot(text, currentKey);
+        if (data.type === 'file' && data.payload_b64) {
+          payload = base64ToBytes(data.payload_b64);
+        } else if (data.plaintext) {
+          addBubble(data.plaintext, 'them', 'رمزگشایی شد • ' + new Date().toLocaleTimeString('fa-IR'), [
+            { label: '📋 کپی', run: () => copyVal(data.plaintext) }
+          ]);
+          $('msgInput').value = '';
+          $('msgInput').style.height = 'auto';
+          return;
+        } else {
+          throw new Error('پاسخ ربات نامعتبر است');
+        }
+      } else {
+        payload = await decryptBytesLocal(text, currentKey);
+      }
+      const parsed = parseFilePayload(payload);
+      showRestoredMedia(parsed.data, parsed.meta);
+      $('msgInput').value = '';
+      $('msgInput').style.height = 'auto';
+      return;
+    }
+
+    // متن رمزشده (pg2: / pge2:)
     let plain;
-    if (isEph) {
+    if (text.startsWith('pge2:')) {
       const data = await decryptViaBot(text, currentKey);
       plain = data.plaintext;
     } else {
       plain = await decryptLocal(text, currentKey);
     }
-    // متن اصلی (چپ)
     addBubble(plain, 'them', 'رمزگشایی شد • ' + new Date().toLocaleTimeString('fa-IR'), [
       { label: '📋 کپی', run: () => copyVal(plain) }
     ]);
