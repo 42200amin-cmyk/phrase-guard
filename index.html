@@ -638,11 +638,20 @@ function updateKeyStatus() {
   }
 }
 
-function saveKey() {
+async function saveKey() {
   const val = $('keyInput').value.trim();
   if (!val) { alert('کلید را وارد کن'); return; }
   currentKey = val;
-  isTemporaryKey = false; // manual key = permanent by default
+  isTemporaryKey = false;
+  try {
+    const res = await fetch(BOT_URL + '/api/epoch-status', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phrase: val })
+    });
+    const data = await res.json().catch(() => ({}));
+    if (res.ok && data.ok && data.active) isTemporaryKey = true;
+  } catch (_) {}
   updateKeyStatus();
   closeSheets();
 }
@@ -747,6 +756,22 @@ async function encryptViaBot(text, passphrase) {
   if (!res.ok || !data.ok) throw new Error(data.error || 'خطای سرور');
   return data;
 }
+async function encryptFileViaBot(rawBytes, filename, mime, passphrase) {
+  const res = await fetch(BOT_URL + '/api/encrypt-file', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      data_b64: bytesToBase64(rawBytes),
+      filename: filename || 'file.bin',
+      mime: mime || 'application/octet-stream',
+      passphrase,
+      mode: 'daily'
+    })
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok || !data.ok) throw new Error(data.error || 'خطای سرور');
+  return data;
+}
 async function decryptViaBot(ciphertext, passphrase) {
   const res = await fetch(BOT_URL + '/api/decrypt', {
     method: 'POST',
@@ -760,14 +785,24 @@ async function decryptViaBot(ciphertext, passphrase) {
 
 async function generateBip39Words(count) {
   if (![12, 24].includes(count)) throw new Error("تعداد نامعتبر");
+  // BIP-39 واقعی: آنتروپی + checksum از SHA-256
   const entropyBytes = count === 12 ? 16 : 32;
   const entropy = crypto.getRandomValues(new Uint8Array(entropyBytes));
-  // Simple BIP39-like (for compatibility with previous wordlist)
+  const hashBuf = await crypto.subtle.digest('SHA-256', entropy);
+  const hash = new Uint8Array(hashBuf);
+  const checksumBits = entropyBytes / 4; // 4 یا 8 بیت
+  const bits = [];
+  for (let i = 0; i < entropy.length; i++) {
+    for (let b = 7; b >= 0; b--) bits.push((entropy[i] >> b) & 1);
+  }
+  for (let i = 0; i < checksumBits; i++) {
+    bits.push((hash[0] >> (7 - i)) & 1);
+  }
   const words = [];
-  const arr = new Uint32Array(count);
-  crypto.getRandomValues(arr);
   for (let i = 0; i < count; i++) {
-    words.push(WORDLIST[arr[i] % WORDLIST.length]);
+    let idx = 0;
+    for (let j = 0; j < 11; j++) idx = (idx << 1) | bits[i * 11 + j];
+    words.push(WORDLIST[idx]);
   }
   return words;
 }
@@ -1026,20 +1061,33 @@ async function encryptFile() {
   setProcessing(true);
   try {
     addBubble('📎 ' + selectedFile.name, 'me', 'فایل شما • ' + new Date().toLocaleTimeString('fa-IR'));
-
-    const header = new TextEncoder().encode(JSON.stringify({
-      phraseGuardFile: 1,
-      name: selectedFile.name,
-      type: selectedFile.type || 'application/octet-stream',
-      lastModified: selectedFile.lastModified
-    }) + '\n');
     const original = new Uint8Array(await selectedFile.arrayBuffer());
-    const payload = new Uint8Array(header.length + original.length);
-    payload.set(header);
-    payload.set(original, header.length);
-    const out = await encryptBytesLocal(payload, currentKey);
+    let out, note;
+    if (isTemporaryKey) {
+      const data = await encryptFileViaBot(
+        original,
+        selectedFile.name || 'file.bin',
+        selectedFile.type || 'application/octet-stream',
+        currentKey
+      );
+      out = data.ciphertext;
+      const mins = Math.max(1, Math.round((data.remaining_seconds || 0) / 60));
+      note = 'فایل رمزشده (موقت • ~' + mins + ' دقیقه) • ' + selectedFile.name;
+    } else {
+      const header = new TextEncoder().encode(JSON.stringify({
+        phraseGuardFile: 1,
+        name: selectedFile.name,
+        type: selectedFile.type || 'application/octet-stream',
+        lastModified: selectedFile.lastModified
+      }) + '\n');
+      const payload = new Uint8Array(header.length + original.length);
+      payload.set(header);
+      payload.set(original, header.length);
+      out = await encryptBytesLocal(payload, currentKey);
+      note = 'فایل رمزشده • ' + selectedFile.name;
+    }
     const fname = (selectedFile.name || 'file') + '.pgf';
-    addBubble(out, 'them', 'فایل رمزشده • ' + selectedFile.name, [
+    addBubble(out, 'them', note, [
       { label: '📋 کپی', run: () => copyVal(out) },
       makeDownloadAction(out, fname)
     ], true);
@@ -1050,6 +1098,7 @@ async function encryptFile() {
     setProcessing(false);
   }
 }
+
 
 
 let _lbBlob = null;
@@ -1204,7 +1253,7 @@ function clearChat() {
     <div class="chat-welcome" id="welcome">
       <div class="icon">🔐</div>
       <strong>چت امن Phrase Guard</strong>
-      <p>پیام بنویس یا فایل ضمیمه کن.<br>همه‌چیز محلی و رمزنگاری‌شده انجام می‌شود.</p>
+      <p>پیام عادی بفرست → رمز می‌شود<br>پیام رمزشده بفرست → باز می‌شود</p>
     </div>`;
   closeSheets();
 }
