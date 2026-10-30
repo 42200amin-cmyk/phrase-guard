@@ -723,10 +723,13 @@ async function deriveKey(passphrase, salt, usage) {
 }
 
 function bytesToBase64(bytes) {
-  let binary = '';
   const chunk = 0x8000;
+  let binary = '';
   for (let i = 0; i < bytes.length; i += chunk) {
-    binary += String.fromCharCode(...bytes.subarray(i, Math.min(i + chunk, bytes.length)));
+    const sub = bytes.subarray(i, Math.min(i + chunk, bytes.length));
+    let part = '';
+    for (let j = 0; j < sub.length; j++) part += String.fromCharCode(sub[j]);
+    binary += part;
   }
   return btoa(binary);
 }
@@ -1070,9 +1073,11 @@ async function encryptText() {
       note = 'رمزشده (محلی)';
     }
     // پاسخ سیستم (چپ)
-    addBubble(out, 'them', note + ' • ' + new Date().toLocaleTimeString('fa-IR'), [
-      { label: '📋 کپی', run: () => copyVal(out) },
-      makeDownloadAction(out, 'phrase-guard.txt')
+    const cipherOut = out;
+    addBubble(cipherOut, 'them', note + ' • ' + new Date().toLocaleTimeString('fa-IR'), [
+      { label: '🔓 باز کردن', run: () => decryptPayloadFromCipher(cipherOut) },
+      { label: '📋 کپی', run: () => copyVal(cipherOut) },
+      makeDownloadAction(cipherOut, 'phrase-guard.txt')
     ], true);
     $('msgInput').value = '';
     $('msgInput').style.height = 'auto';
@@ -1083,43 +1088,29 @@ async function encryptText() {
   }
 }
 
-async function decryptText() {
-  const rawInput = $('msgInput').value.trim();
+
+async function decryptPayloadFromCipher(cipher) {
   if (!currentKey) { openKeySheet(); return; }
-  if (!rawInput) return;
-  const text = normalizeCiphertext(rawInput);
+  const text = normalizeCiphertext(cipher);
+  if (!text) return;
   setProcessing(true);
   try {
-    addBubble(rawInput, 'me', 'رمزشده • ' + new Date().toLocaleTimeString('fa-IR'), [], true);
-
-    // فایل/عکس رمزشده که به‌صورت متن paste شده (pgf1: / pgfe1:)
     if (text.startsWith(FILE_PREFIX) || text.startsWith('pgfe1:')) {
       let payload;
       if (text.startsWith('pgfe1:')) {
         const data = await decryptViaBot(text, currentKey);
         if (data.type === 'file' && data.payload_b64) {
           payload = base64ToBytes(data.payload_b64);
-        } else if (data.plaintext) {
-          addBubble(data.plaintext, 'them', 'رمزگشایی شد • ' + new Date().toLocaleTimeString('fa-IR'), [
-            { label: '📋 کپی', run: () => copyVal(data.plaintext) }
-          ]);
-          $('msgInput').value = '';
-          $('msgInput').style.height = 'auto';
-          return;
         } else {
-          throw new Error('پاسخ ربات نامعتبر است');
+          throw new Error(data.error || 'رمزگشایی فایل موقت ناموفق');
         }
       } else {
         payload = await decryptBytesLocal(text, currentKey);
       }
       const parsed = parseFilePayload(payload);
       showRestoredMedia(parsed.data, parsed.meta);
-      $('msgInput').value = '';
-      $('msgInput').style.height = 'auto';
       return;
     }
-
-    // متن رمزشده (pg2: / pge2:)
     let plain;
     if (text.startsWith('pge2:')) {
       const data = await decryptViaBot(text, currentKey);
@@ -1130,18 +1121,26 @@ async function decryptText() {
     addBubble(plain, 'them', 'رمزگشایی شد • ' + new Date().toLocaleTimeString('fa-IR'), [
       { label: '📋 کپی', run: () => copyVal(plain) }
     ]);
-    $('msgInput').value = '';
-    $('msgInput').style.height = 'auto';
   } catch (e) {
     const msg = (e && e.message) ? e.message : '';
     if (!msg || /operation failed|OperationError/i.test(msg)) {
-      addError('کلید اشتباه است یا متن رمزشده هنگام کپی خراب شده. از دکمه «کپی» استفاده کن، نه انتخاب دستی.');
+      addError('رمزگشایی ناموفق بود. کلید را چک کن یا از دکمه «باز کردن» روی همان پیام استفاده کن.');
     } else {
       addError(msg);
     }
   } finally {
     setProcessing(false);
   }
+}
+
+async function decryptText() {
+  const rawInput = $('msgInput').value.trim();
+  if (!currentKey) { openKeySheet(); return; }
+  if (!rawInput) return;
+  addBubble(rawInput, 'me', 'رمزشده • ' + new Date().toLocaleTimeString('fa-IR'), [], true);
+  $('msgInput').value = '';
+  $('msgInput').style.height = 'auto';
+  await decryptPayloadFromCipher(rawInput);
 }
 
 async function encryptFile() {
@@ -1176,9 +1175,11 @@ async function encryptFile() {
       note = 'فایل رمزشده • ' + selectedFile.name;
     }
     const fname = (selectedFile.name || 'file') + '.pgf';
-    addBubble(out, 'them', note, [
-      { label: '📋 کپی', run: () => copyVal(out) },
-      makeDownloadAction(out, fname)
+    const cipherOut = out;
+    addBubble(cipherOut, 'them', note, [
+      { label: '🔓 باز کردن', run: () => decryptPayloadFromCipher(cipherOut) },
+      { label: '📋 کپی', run: () => copyVal(cipherOut) },
+      makeDownloadAction(cipherOut, fname)
     ], true);
     clearFile();
   } catch (e) {
