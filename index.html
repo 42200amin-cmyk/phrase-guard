@@ -137,13 +137,12 @@
       box-sizing: border-box;
     }
     .app.in-telegram {
-      /* فاصله زیر ✕ Close — پیش‌فرض 72px (با --pg-tg-top قابل تغییر) */
+      /* فقط inset واقعی تلگرام — بدون فاصله مصنوعی */
       padding-top: max(
         env(safe-area-inset-top, 0px),
         var(--tg-safe-top),
-        var(--tg-content-top),
-        var(--pg-tg-top, 72px)
-      ) !important;
+        var(--tg-content-top)
+      );
     }
     .topbar .logo {
       font-weight: 800;
@@ -902,7 +901,7 @@
       </div>
     </div>
 
-    <p class="hint" style="margin-top:10px;text-align:center;" data-i18n="menuFooter">Phrase Guard • v3.44 • local processing</p>
+    <p class="hint" style="margin-top:10px;text-align:center;" data-i18n="menuFooter">Phrase Guard • v3.45 • local processing</p>
   </div>
 
   <div class="sheet" id="generateSheet">
@@ -956,7 +955,7 @@ const I18N = {
     mClearKeySub: 'از حافظه این دستگاه حذف می‌شود',
     mClearChat: 'پاک کردن تاریخچه',
     mClearChatSub: 'پیام‌های این صفحه حذف می‌شوند',
-    menuFooter: 'Phrase Guard • v3.44 • پردازش محلی',
+    menuFooter: 'Phrase Guard • v3.45 • پردازش محلی',
     welcomeTitle: 'چت امن Phrase Guard',
     welcomeBody: 'پیام عادی بفرست → رمز می‌شود\nپیام رمزشده بفرست → باز می‌شود',
     placeholder: 'پیام عادی یا رمزشده بنویس...',
@@ -1017,7 +1016,7 @@ tempOnlyBot: 'این پیام با کلید موقت ربات ساخته شده 
     mClearKeySub: 'Remove from this device memory',
     mClearChat: 'Clear history',
     mClearChatSub: 'Messages on this screen will be removed',
-    menuFooter: 'Phrase Guard • v3.44 • local processing',
+    menuFooter: 'Phrase Guard • v3.45 • local processing',
     welcomeTitle: 'Secure chat — Phrase Guard',
     welcomeBody: 'Send plain text → encrypts\nSend ciphertext → decrypts',
     placeholder: 'Type plain or encrypted message...',
@@ -1104,8 +1103,10 @@ function applyTelegramLayout() {
     var tg = Telegram.WebApp;
     try { tg.ready(); } catch (_) {}
     try { tg.expand(); } catch (_) {}
+    // تمام‌صفحه نکن — ✕ می‌افتد روی محتوا. مثل مینی‌اپ‌های استاندارد هدر بیرون بماند.
     try {
-      if (tg.requestFullscreen) tg.requestFullscreen();
+      if (tg.isFullscreen && tg.exitFullscreen) tg.exitFullscreen();
+      else if (tg.exitFullscreen) tg.exitFullscreen();
     } catch (_) {}
 
     document.documentElement.classList.add('in-telegram');
@@ -1129,8 +1130,9 @@ function applyTelegramLayout() {
 
       // اگر API مقدار نداد ولی در مینی‌اپیم، حداقل فاصله برای ✕
       // باز شدن از پروفایل/Open معمولاً هدر بزرگ‌تری دارد
-      // حداقل فاصله عمودی از هدر/✕ تلگرام (~ یک ردیف دکمه)
-      if (top < 72) top = 72;
+      // هدر استاندارد تلگرام بیرون از WebView است؛ فقط inset واقعی
+      // اگر هنوز fullscreen بود و ✕ روی صفحه بود، inset معمولاً مقدار می‌دهد
+
       var root = document.documentElement;
       root.style.setProperty('--tg-safe-top', top + 'px');
       root.style.setProperty('--tg-content-top', readInset(content, 'top') + 'px');
