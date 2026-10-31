@@ -132,8 +132,13 @@
     .app.in-telegram .topbar {
       padding-left: 6px;
       padding-right: 10px;
+      padding-top: 6px;
       min-height: 44px;
       box-sizing: border-box;
+    }
+    .app.in-telegram {
+      /* فقط فاصله عمودی از ✕/هدر — دکمه‌ها جابه‌جا به راست نمی‌شوند */
+      padding-top: max(env(safe-area-inset-top, 0px), var(--tg-safe-top), var(--tg-content-top), 28px);
     }
     .topbar .logo {
       font-weight: 800;
@@ -892,7 +897,7 @@
       </div>
     </div>
 
-    <p class="hint" style="margin-top:10px;text-align:center;" data-i18n="menuFooter">Phrase Guard • v3.41 • local processing</p>
+    <p class="hint" style="margin-top:10px;text-align:center;" data-i18n="menuFooter">Phrase Guard • v3.42 • local processing</p>
   </div>
 
   <div class="sheet" id="generateSheet">
@@ -946,7 +951,7 @@ const I18N = {
     mClearKeySub: 'از حافظه این دستگاه حذف می‌شود',
     mClearChat: 'پاک کردن تاریخچه',
     mClearChatSub: 'پیام‌های این صفحه حذف می‌شوند',
-    menuFooter: 'Phrase Guard • v3.41 • پردازش محلی',
+    menuFooter: 'Phrase Guard • v3.42 • پردازش محلی',
     welcomeTitle: 'چت امن Phrase Guard',
     welcomeBody: 'پیام عادی بفرست → رمز می‌شود\nپیام رمزشده بفرست → باز می‌شود',
     placeholder: 'پیام عادی یا رمزشده بنویس...',
@@ -1007,7 +1012,7 @@ tempOnlyBot: 'این پیام با کلید موقت ربات ساخته شده 
     mClearKeySub: 'Remove from this device memory',
     mClearChat: 'Clear history',
     mClearChatSub: 'Messages on this screen will be removed',
-    menuFooter: 'Phrase Guard • v3.41 • local processing',
+    menuFooter: 'Phrase Guard • v3.42 • local processing',
     welcomeTitle: 'Secure chat — Phrase Guard',
     welcomeBody: 'Send plain text → encrypts\nSend ciphertext → decrypts',
     placeholder: 'Type plain or encrypted message...',
@@ -1119,8 +1124,8 @@ function applyTelegramLayout() {
 
       // اگر API مقدار نداد ولی در مینی‌اپیم، حداقل فاصله برای ✕
       // باز شدن از پروفایل/Open معمولاً هدر بزرگ‌تری دارد
-      if (top < 8) top = 0; // env(safe-area) may still help
-      // فضای افقی برای دکمه بستن (سمت چپ UI تلگرام)
+      // حداقل فاصله عمودی از هدر/✕ تلگرام
+      if (top < 28) top = 28;
       var root = document.documentElement;
       root.style.setProperty('--tg-safe-top', top + 'px');
       root.style.setProperty('--tg-content-top', readInset(content, 'top') + 'px');
@@ -2270,10 +2275,7 @@ async function encryptText() {
     // پاسخ سیستم (چپ)
     const cipherOut = out;
     addBubble(cipherOut, 'them', note + ' • ' + new Date().toLocaleTimeString(currentLang === 'fa' ? 'fa-IR' : 'en-US'), [
-      { label: t('btnOpen'), run: () => decryptPayloadFromCipher(cipherOut) },
-      { label: t('btnShare'), run: () => shareCipherAsText(cipherOut) },
-      { label: '📋 ' + t('btnCopy'), run: () => copyVal(cipherOut) },
-      makeDownloadAction(cipherOut, 'phrase-guard.txt')
+      { label: t('btnShare'), run: () => shareCipherAsText(cipherOut) }
     ], true, { qrText: cipherOut.length <= 800 ? cipherOut : null });
     $('msgInput').value = '';
     $('msgInput').style.height = 'auto';
@@ -2303,7 +2305,7 @@ async function decryptPayloadFromCipher(cipher) {
     const plain = await decryptLocal(text, currentKey);
     addBubble(plain, 'them', t('decrypted') + ' • ' + new Date().toLocaleTimeString(currentLang === 'fa' ? 'fa-IR' : 'en-US'), [
       { label: '📋 ' + t('btnCopy'), run: () => copyVal(plain) }
-    ], false, { blur: true, qrText: plain.length <= 800 ? plain : null });
+    ], false, { blur: true });
   } catch (e) {
     const msg = (e && e.message) ? e.message : '';
     if (!msg || /operation failed|OperationError/i.test(msg)) {
@@ -2367,11 +2369,9 @@ async function encryptFile() {
     const fname = (selectedFile.name || 'file') + '.pgf';
     const cipherOut = out;
     addBubble(cipherOut, 'them', note, [
-      { label: t('btnOpen'), run: () => decryptPayloadFromCipher(cipherOut) },
       { label: t('btnShare'), run: () => shareCipherAsText(cipherOut) },
-      { label: '📋 ' + t('btnCopy'), run: () => copyVal(cipherOut) },
       makeDownloadAction(cipherOut, fname)
-    ], true, { qrText: cipherOut.length <= 800 ? cipherOut : null });
+    ], true);
     clearFile();
   } catch (e) {
     addError(e.message || (currentLang === 'en' ? 'Encrypt failed' : 'رمزگذاری ناموفق'));
