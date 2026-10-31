@@ -130,8 +130,7 @@
       margin-inline-start: 0;
     }
     .app.in-telegram .topbar {
-      /* فاصله از ✕ فقط سمت چپ فیزیکی */
-      padding-left: max(10px, calc(var(--tg-controls-pad, 48px) + 6px));
+      padding-left: 6px;
       padding-right: 10px;
       min-height: 44px;
       box-sizing: border-box;
@@ -1122,16 +1121,14 @@ function applyTelegramLayout() {
       // باز شدن از پروفایل/Open معمولاً هدر بزرگ‌تری دارد
       if (top < 8) top = 0; // env(safe-area) may still help
       // فضای افقی برای دکمه بستن (سمت چپ UI تلگرام)
-      var controlsPad = Math.max(left, right, 0);
-      if (controlsPad < 4) controlsPad = 52; // ≈ عرض دکمه ✕ + حاشیه
-
       var root = document.documentElement;
       root.style.setProperty('--tg-safe-top', top + 'px');
       root.style.setProperty('--tg-content-top', readInset(content, 'top') + 'px');
       root.style.setProperty('--tg-safe-bottom', bottom + 'px');
-      root.style.setProperty('--tg-safe-left', left + 'px');
+      // چپ/راست را صفر نگه می‌داریم تا دکمه‌ها به ✕ بچسبند (طبق خواست کاربر)
+      root.style.setProperty('--tg-safe-left', '0px');
       root.style.setProperty('--tg-safe-right', right + 'px');
-      root.style.setProperty('--tg-controls-pad', controlsPad + 'px');
+      root.style.setProperty('--tg-controls-pad', '0px');
     }
 
     syncSafeArea();
