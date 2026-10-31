@@ -97,16 +97,30 @@
       padding-right: max(env(safe-area-inset-right, 0px), var(--tg-safe-right));
       box-sizing: border-box;
     }
+    .topbar {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      direction: ltr; /* چیدمان ثابت: اکشن‌ها چپ، لوگو راست */
+    }
+    .topbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+    .topbar .logo {
+      flex: 1;
+      text-align: right;
+      direction: rtl;
+    }
     .app.in-telegram .topbar {
-      /* ✕ تلگرام همیشه سمت چپ فیزیکی است؛ در RTL دکمه‌های ما هم چپ می‌آیند */
       padding-left: max(12px, calc(var(--tg-controls-pad, 52px) + 8px));
       padding-right: 12px;
       min-height: 48px;
       box-sizing: border-box;
-    }
-    .app.in-telegram .topbar .logo {
-      /* لوگو فضا را وسط/راست نگه دارد تا روی ✕ نرود */
-      margin-right: auto;
     }
 
     .topbar {
@@ -715,6 +729,9 @@
     .qr-overlay canvas, .qr-overlay img {
       max-width: min(280px, 80vw); border-radius: 12px; background: #fff; padding: 10px;
     }
+    .qr-overlay .qr-actions button.primary {
+      background: linear-gradient(135deg, #a78bfa, #00a884); border: none; color: #0b141a; font-weight: 700;
+    }
     .qr-overlay .qr-actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
     .qr-overlay .qr-actions button {
       background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2);
@@ -752,10 +769,12 @@
 <body>
   <div class="app">
     <div class="topbar">
+      <div class="topbar-actions">
+        <button class="topbar-btn" onclick="openScanOverlay()" title="اسکن QR">📷</button>
+        <span class="key-dot" id="keyDot" title="وضعیت کلید"></span>
+        <button class="topbar-btn" onclick="openMenuSheet()" title="منو">⋮</button>
+      </div>
       <div class="logo">Phrase Guard</div>
-      <span class="key-dot" id="keyDot" title="وضعیت کلید"></span>
-      <button class="topbar-btn" onclick="openScanOverlay()" title="اسکن QR">📷</button>
-      <button class="topbar-btn" onclick="openMenuSheet()" title="منو">⋮</button>
     </div>
 
     <div class="chat-area" id="chatArea">
@@ -874,7 +893,7 @@
       </div>
     </div>
 
-    <p class="hint" style="margin-top:10px;text-align:center;" data-i18n="menuFooter">Phrase Guard • v3.39 • local processing</p>
+    <p class="hint" style="margin-top:10px;text-align:center;" data-i18n="menuFooter">Phrase Guard • v3.40 • local processing</p>
   </div>
 
   <div class="sheet" id="generateSheet">
@@ -928,7 +947,7 @@ const I18N = {
     mClearKeySub: 'از حافظه این دستگاه حذف می‌شود',
     mClearChat: 'پاک کردن تاریخچه',
     mClearChatSub: 'پیام‌های این صفحه حذف می‌شوند',
-    menuFooter: 'Phrase Guard • v3.39 • پردازش محلی',
+    menuFooter: 'Phrase Guard • v3.40 • پردازش محلی',
     welcomeTitle: 'چت امن Phrase Guard',
     welcomeBody: 'پیام عادی بفرست → رمز می‌شود\nپیام رمزشده بفرست → باز می‌شود',
     placeholder: 'پیام عادی یا رمزشده بنویس...',
@@ -989,7 +1008,7 @@ tempOnlyBot: 'این پیام با کلید موقت ربات ساخته شده 
     mClearKeySub: 'Remove from this device memory',
     mClearChat: 'Clear history',
     mClearChatSub: 'Messages on this screen will be removed',
-    menuFooter: 'Phrase Guard • v3.39 • local processing',
+    menuFooter: 'Phrase Guard • v3.40 • local processing',
     welcomeTitle: 'Secure chat — Phrase Guard',
     welcomeBody: 'Send plain text → encrypts\nSend ciphertext → decrypts',
     placeholder: 'Type plain or encrypted message...',
@@ -1056,7 +1075,17 @@ function setTheme(theme) {
   const l = document.getElementById('themeLightBtn');
   if (d) d.classList.toggle('active', mode === 'dark');
   if (l) l.classList.toggle('active', mode === 'light');
-  try { applyTelegramLayout(); } catch (_) {}
+  try { applyTelegramLayout();
+
+(function () {
+  var g = document.getElementById('scanGalleryInput');
+  if (g) g.addEventListener('change', function (e) {
+    var f = e.target.files && e.target.files[0];
+    e.target.value = '';
+    if (f) handleGalleryQr(f);
+  });
+})();
+ } catch (_) {}
 
 }
 
@@ -1363,6 +1392,118 @@ function showQr(text) {
       : 'ساخت QR ممکن نشد. از کپی یا اشتراک متنی استفاده کن.');
   }
 }
+
+function downloadQrImage() {
+  var canvas = $('qrCanvas');
+  if (!canvas) return;
+  try {
+    var filename = 'phrase-guard-qr.png';
+    if (canvas.toBlob) {
+      canvas.toBlob(function (blob) {
+        if (!blob) return;
+        // Web Share با فایل (موبایل → ذخیره/گالری)
+        try {
+          if (navigator.share && navigator.canShare) {
+            var file = new File([blob], filename, { type: 'image/png' });
+            if (navigator.canShare({ files: [file] })) {
+              navigator.share({ files: [file], title: 'Phrase Guard QR' }).catch(function () {
+                forceDownloadBlob(blob, filename);
+              });
+              return;
+            }
+          }
+        } catch (_) {}
+        forceDownloadBlob(blob, filename);
+      }, 'image/png');
+    } else {
+      var a = document.createElement('a');
+      a.href = canvas.toDataURL('image/png');
+      a.download = filename;
+      a.click();
+    }
+  } catch (e) {
+    alert(currentLang === 'en' ? 'Could not save QR image' : 'ذخیره تصویر QR ممکن نشد');
+  }
+}
+function forceDownloadBlob(blob, filename) {
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = filename || 'download.png';
+  a.rel = 'noopener';
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(function () {
+    try { a.remove(); URL.revokeObjectURL(url); } catch (_) {}
+  }, 4000);
+}
+
+async function startTelegramOrDeviceScan() {
+  if (isTelegramWebApp()) {
+    try {
+      if (!window._pgQrHooked) {
+        window._pgQrHooked = true;
+        Telegram.WebApp.onEvent('qrTextReceived', function (ev) {
+          try { Telegram.WebApp.closeScanQrPopup(); } catch (_) {}
+          var data = (ev && (ev.data != null ? ev.data : ev)) || '';
+          if (typeof data !== 'string') data = String(data || '');
+          if (data) onQrScanned(data);
+        });
+      }
+      Telegram.WebApp.showScanQrPopup({
+        text: currentLang === 'en' ? 'Scan Phrase Guard QR' : 'QR مربوط به Phrase Guard را اسکن کن'
+      });
+      return;
+    } catch (e) { console.warn(e); }
+  }
+  // مرورگر: دوربین زنده در صورت پشتیبانی
+  await startScanCamera();
+}
+
+async function detectQrFromImageFile(file) {
+  if (!file) return null;
+  // BarcodeDetector روی تصویر
+  if (typeof BarcodeDetector !== 'undefined') {
+    try {
+      var detector = new BarcodeDetector({ formats: ['qr_code'] });
+      if (typeof createImageBitmap === 'function') {
+        var bmp = await createImageBitmap(file);
+        try {
+          var codes = await detector.detect(bmp);
+          if (codes && codes[0] && codes[0].rawValue) return codes[0].rawValue;
+        } finally { try { bmp.close(); } catch (_) {} }
+      }
+      var url = URL.createObjectURL(file);
+      try {
+        var img = await new Promise(function (res, rej) {
+          var i = new Image();
+          i.onload = function () { res(i); };
+          i.onerror = rej;
+          i.src = url;
+        });
+        var codes2 = await detector.detect(img);
+        if (codes2 && codes2[0] && codes2[0].rawValue) return codes2[0].rawValue;
+      } finally { URL.revokeObjectURL(url); }
+    } catch (e) { console.warn('gallery detect', e); }
+  }
+  return null;
+}
+
+async function handleGalleryQr(file) {
+  if (!file) return;
+  setScanHint(currentLang === 'en' ? 'Reading image…' : 'در حال خواندن تصویر…');
+  var raw = await detectQrFromImageFile(file);
+  if (raw) {
+    closeScanOverlay();
+    await onQrScanned(raw);
+    return;
+  }
+  // اگر دیکود نشد: راهنمای کپی از اسکنر گوشی
+  setScanHint(currentLang === 'en'
+    ? 'Could not read QR from image here. Open it in your phone QR scanner, copy text, paste below.'
+    : 'خواندن QR از تصویر در این محیط ممکن نشد. با اسکنر گوشی باز کن، متن را کپی و پایین بچسبان.');
+}
+
 function closeQr() {
   $('qrOverlay').classList.remove('open');
 }
@@ -1383,41 +1524,19 @@ function isTelegramWebApp() {
 
 async function openScanOverlay() {
   closeQr();
-  // اسکنر بومی تلگرام داخل مینی‌اپ
-  if (isTelegramWebApp()) {
-    try {
-      if (!window._pgQrHooked) {
-        window._pgQrHooked = true;
-        Telegram.WebApp.onEvent('qrTextReceived', function (ev) {
-          try { Telegram.WebApp.closeScanQrPopup(); } catch (_) {}
-          var data = (ev && (ev.data != null ? ev.data : ev)) || '';
-          if (typeof data !== 'string') data = String(data || '');
-          if (data) onQrScanned(data);
-        });
-      }
-      Telegram.WebApp.showScanQrPopup({
-        text: currentLang === 'en'
-          ? 'Scan Phrase Guard QR'
-          : 'QR مربوط به Phrase Guard را اسکن کن'
-      });
-      return;
-    } catch (e) {
-      console.warn('tg scan', e);
-    }
-  }
-
   const ov = $('scanOverlay');
   if (!ov) return;
   ov.classList.add('open');
   const ta = $('scanPaste');
-  if (ta) { ta.value = ''; try { ta.focus(); } catch (_) {} }
+  if (ta) { ta.value = ''; }
   setScanHint(currentLang === 'en'
-    ? '1) Phone Camera / QR scanner  2) Scan  3) Copy  4) Paste here'
-    : '۱) دوربین یا اسکنر گوشی  ۲) اسکن  ۳) کپی متن  ۴) اینجا بچسبان');
+    ? 'Camera, gallery, or paste QR text — then decrypt with your key'
+    : 'دوربین، گالری، یا چسباندن متن QR — بعد رمزگشایی با کلید');
   const video = $('scanVideo');
   if (video) video.style.display = 'none';
   _scanBusy = false;
 }
+
 
 
 function setScanHint(msg) {
@@ -2454,21 +2573,24 @@ try {
   </div>
   <div class="qr-hint" id="qrHint"></div>
   <div class="qr-actions">
+    <button type="button" class="primary" onclick="downloadQrImage()">⬇️ ذخیره در گالری</button>
     <button type="button" onclick="closeQr()" data-i18n="btnClose">بستن</button>
   </div>
 </div>
 
 <div class="scan-overlay" id="scanOverlay">
-  <div class="scan-hint" id="scanHint" style="max-width:340px;line-height:1.6;text-align:center;color:#e9d5ff;">
-    داخل تلگرام: اسکنر خود تلگرام باز می‌شود. بیرون: اسکن با گوشی → کپی → چسباندن اینجا.
+  <div class="scan-hint" id="scanHint" style="max-width:340px;line-height:1.65;text-align:center;color:#e9d5ff;">
+    دوربین تلگرام، گالری، یا چسباندن متن QR
   </div>
-  <textarea id="scanPaste" rows="4" placeholder="pgqr:1:pg2:… یا خروجی اسکنر" style="width:min(340px,92vw);border-radius:12px;border:1px solid rgba(167,139,250,0.45);background:#0f172a;color:#e2e8f0;padding:12px;font-size:0.82rem;direction:ltr;text-align:left;resize:vertical;"></textarea>
+  <textarea id="scanPaste" rows="3" placeholder="pgqr:1:pg2:… یا متن کپی‌شده از اسکنر" style="width:min(340px,92vw);border-radius:12px;border:1px solid rgba(167,139,250,0.45);background:#0f172a;color:#e2e8f0;padding:12px;font-size:0.82rem;direction:ltr;text-align:left;resize:vertical;"></textarea>
   <div class="scan-actions">
-    <button type="button" class="primary" onclick="submitScannedPaste()">🔓 ادامه / رمزگشایی</button>
-    <button type="button" onclick="pasteFromClipboard()">📋 از کلیپ‌بورد</button>
-    <button type="button" onclick="startScanCamera()">📷 دوربین (در صورت پشتیبانی)</button>
+    <button type="button" class="primary" onclick="startTelegramOrDeviceScan()">📷 اسکن با دوربین</button>
+    <button type="button" onclick="document.getElementById('scanGalleryInput').click()">🖼️ از گالری</button>
+    <button type="button" onclick="submitScannedPaste()">🔓 ادامه با متن</button>
+    <button type="button" onclick="pasteFromClipboard()">📋 کلیپ‌بورد</button>
     <button type="button" onclick="closeScanOverlay()">بستن</button>
   </div>
+  <input type="file" id="scanGalleryInput" accept="image/*" style="display:none" />
   <video id="scanVideo" playsinline muted autoplay style="display:none;width:min(280px,85vw);border-radius:12px;margin-top:8px;"></video>
   <canvas id="scanCanvas" style="display:none"></canvas>
 </div>
