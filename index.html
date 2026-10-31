@@ -97,37 +97,15 @@
       padding-right: max(env(safe-area-inset-right, 0px), var(--tg-safe-right));
       box-sizing: border-box;
     }
+
+
     .topbar {
       display: flex;
       flex-direction: row;
       align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      direction: ltr; /* چیدمان ثابت: اکشن‌ها چپ، لوگو راست */
-    }
-    .topbar-actions {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      flex-shrink: 0;
-    }
-    .topbar .logo {
-      flex: 1;
-      text-align: right;
-      direction: rtl;
-    }
-    .app.in-telegram .topbar {
-      padding-left: max(12px, calc(var(--tg-controls-pad, 52px) + 8px));
-      padding-right: 12px;
-      min-height: 48px;
-      box-sizing: border-box;
-    }
-
-    .topbar {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 10px 12px;
+      justify-content: flex-start;
+      gap: 8px;
+      padding: 8px 10px;
       background: var(--glass);
       -webkit-backdrop-filter: blur(16px) saturate(1.4);
       backdrop-filter: blur(16px) saturate(1.4);
@@ -135,6 +113,28 @@
       flex-shrink: 0;
       z-index: 20;
       box-shadow: 0 1px 0 rgba(255,255,255,0.04);
+    }
+    /* RTL: لوگو راست، اکشن‌ها چسبیده به چپ */
+    .topbar .logo {
+      order: 0;
+      flex: 1;
+      min-width: 0;
+      text-align: right;
+    }
+    .topbar-actions {
+      order: 1;
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      flex-shrink: 0;
+      margin-inline-start: 0;
+    }
+    .app.in-telegram .topbar {
+      /* فاصله از ✕ فقط سمت چپ فیزیکی */
+      padding-left: max(10px, calc(var(--tg-controls-pad, 48px) + 6px));
+      padding-right: 10px;
+      min-height: 44px;
+      box-sizing: border-box;
     }
     .topbar .logo {
       font-weight: 800;
@@ -769,12 +769,12 @@
 <body>
   <div class="app">
     <div class="topbar">
+      <div class="logo">Phrase Guard</div>
       <div class="topbar-actions">
-        <button class="topbar-btn" onclick="openScanOverlay()" title="اسکن QR">📷</button>
         <span class="key-dot" id="keyDot" title="وضعیت کلید"></span>
+        <button class="topbar-btn" onclick="openScanOverlay()" title="اسکن QR">📷</button>
         <button class="topbar-btn" onclick="openMenuSheet()" title="منو">⋮</button>
       </div>
-      <div class="logo">Phrase Guard</div>
     </div>
 
     <div class="chat-area" id="chatArea">
@@ -893,7 +893,7 @@
       </div>
     </div>
 
-    <p class="hint" style="margin-top:10px;text-align:center;" data-i18n="menuFooter">Phrase Guard • v3.40 • local processing</p>
+    <p class="hint" style="margin-top:10px;text-align:center;" data-i18n="menuFooter">Phrase Guard • v3.41 • local processing</p>
   </div>
 
   <div class="sheet" id="generateSheet">
@@ -947,7 +947,7 @@ const I18N = {
     mClearKeySub: 'از حافظه این دستگاه حذف می‌شود',
     mClearChat: 'پاک کردن تاریخچه',
     mClearChatSub: 'پیام‌های این صفحه حذف می‌شوند',
-    menuFooter: 'Phrase Guard • v3.40 • پردازش محلی',
+    menuFooter: 'Phrase Guard • v3.41 • پردازش محلی',
     welcomeTitle: 'چت امن Phrase Guard',
     welcomeBody: 'پیام عادی بفرست → رمز می‌شود\nپیام رمزشده بفرست → باز می‌شود',
     placeholder: 'پیام عادی یا رمزشده بنویس...',
@@ -1008,7 +1008,7 @@ tempOnlyBot: 'این پیام با کلید موقت ربات ساخته شده 
     mClearKeySub: 'Remove from this device memory',
     mClearChat: 'Clear history',
     mClearChatSub: 'Messages on this screen will be removed',
-    menuFooter: 'Phrase Guard • v3.40 • local processing',
+    menuFooter: 'Phrase Guard • v3.41 • local processing',
     welcomeTitle: 'Secure chat — Phrase Guard',
     welcomeBody: 'Send plain text → encrypts\nSend ciphertext → decrypts',
     placeholder: 'Type plain or encrypted message...',
@@ -1527,15 +1527,14 @@ async function openScanOverlay() {
   const ov = $('scanOverlay');
   if (!ov) return;
   ov.classList.add('open');
-  const ta = $('scanPaste');
-  if (ta) { ta.value = ''; }
   setScanHint(currentLang === 'en'
-    ? 'Camera, gallery, or paste QR text — then decrypt with your key'
-    : 'دوربین، گالری، یا چسباندن متن QR — بعد رمزگشایی با کلید');
+    ? 'Scan a Phrase Guard QR with camera or gallery'
+    : 'QR مربوط به Phrase Guard را با دوربین یا گالری اسکن کن');
   const video = $('scanVideo');
   if (video) video.style.display = 'none';
   _scanBusy = false;
 }
+
 
 
 
@@ -2579,15 +2578,12 @@ try {
 </div>
 
 <div class="scan-overlay" id="scanOverlay">
-  <div class="scan-hint" id="scanHint" style="max-width:340px;line-height:1.65;text-align:center;color:#e9d5ff;">
-    دوربین تلگرام، گالری، یا چسباندن متن QR
+  <div class="scan-hint" id="scanHint" style="max-width:320px;line-height:1.6;text-align:center;color:#e9d5ff;">
+    QR مربوط به Phrase Guard را اسکن کن
   </div>
-  <textarea id="scanPaste" rows="3" placeholder="pgqr:1:pg2:… یا متن کپی‌شده از اسکنر" style="width:min(340px,92vw);border-radius:12px;border:1px solid rgba(167,139,250,0.45);background:#0f172a;color:#e2e8f0;padding:12px;font-size:0.82rem;direction:ltr;text-align:left;resize:vertical;"></textarea>
   <div class="scan-actions">
     <button type="button" class="primary" onclick="startTelegramOrDeviceScan()">📷 اسکن با دوربین</button>
     <button type="button" onclick="document.getElementById('scanGalleryInput').click()">🖼️ از گالری</button>
-    <button type="button" onclick="submitScannedPaste()">🔓 ادامه با متن</button>
-    <button type="button" onclick="pasteFromClipboard()">📋 کلیپ‌بورد</button>
     <button type="button" onclick="closeScanOverlay()">بستن</button>
   </div>
   <input type="file" id="scanGalleryInput" accept="image/*" style="display:none" />
