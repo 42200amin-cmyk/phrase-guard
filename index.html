@@ -11,11 +11,6 @@
   <style>
     :root, :root[data-theme="dark"] {
       color-scheme: dark;
-      --tg-safe-top: 0px;
-      --tg-safe-bottom: 0px;
-      --tg-safe-left: 0px;
-      --tg-safe-right: 0px;
-      --tg-content-top: 0px;
       --bg: #0b141a;
       --surface: #111b21;
       --surface2: #1f2c34;
@@ -90,11 +85,10 @@
       max-height: 100dvh;
       background: var(--bg);
       overflow: hidden;
-      /* فاصله از هدر/ضربدر مینی‌اپ تلگرام */
-      padding-top: max(env(safe-area-inset-top, 0px), var(--tg-safe-top), var(--tg-content-top));
-      padding-bottom: max(env(safe-area-inset-bottom, 0px), var(--tg-safe-bottom));
-      padding-left: max(env(safe-area-inset-left, 0px), var(--tg-safe-left));
-      padding-right: max(env(safe-area-inset-right, 0px), var(--tg-safe-right));
+      padding-top: env(safe-area-inset-top, 0px);
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+      padding-left: env(safe-area-inset-left, 0px);
+      padding-right: env(safe-area-inset-right, 0px);
       box-sizing: border-box;
     }
 
@@ -132,21 +126,6 @@
       flex-shrink: 0;
       height: 38px;
       margin-inline-start: 0;
-    }
-    .app.in-telegram .topbar {
-      padding-left: 6px;
-      padding-right: 10px;
-      padding-top: 4px;
-      min-height: 44px;
-      box-sizing: border-box;
-    }
-    .app.in-telegram {
-      /* فقط inset واقعی تلگرام — بدون فاصله مصنوعی */
-      padding-top: max(
-        env(safe-area-inset-top, 0px),
-        var(--tg-safe-top),
-        var(--tg-content-top)
-      );
     }
     .topbar .logo {
       font-weight: 800;
@@ -834,7 +813,6 @@
       color: #fff; border-radius: 10px; padding: 10px 16px; font-size: 0.85rem; cursor: pointer;
     }
   </style>
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
   <div class="app">
@@ -1018,19 +996,17 @@ const I18N = {
     sepLabel: 'ظاهر جداکننده',
     keyNone: 'کلیدی تنظیم نشده',
     keySet: 'کلید تنظیم شده',
-    keyTemp: 'کلید موقت فعال',
     keyLabel: 'کلید / عبارت بازیابی',
     keyPh: '۱۲ یا ۲۴ کلمه یا رمز دلخواه',
     btnSaveKey: 'ذخیره کلید',
     btnCopyKey: 'کپی کلید',
     btnClearKey: 'پاک کردن',
-    keyHint: 'کلید فقط در حافظه این مرورگر نگه داشته می‌شود (به‌جز حالت موقت ربات).',
+    keyHint: 'کلید فقط در حافظه این مرورگر نگه داشته می‌شود و به جایی ارسال نمی‌شود. جداکننده‌های رایج هنگام ورود پذیرفته می‌شوند.',
     genTitle: 'ساخت کلید',
     wordCount: 'تعداد کلمات',
     w12: '۱۲ کلمه',
     w24: '۲۴ کلمه',
     genLocal: 'ساخت کلید آفلاین',
-    genDaily: 'کلید موقت (ربات)',
     useKey: 'استفاده از این کلید',
     btnCopy: 'کپی',
     btnClose: 'بستن',
@@ -1082,19 +1058,17 @@ tempOnlyBot: 'این پیام با کلید موقت ربات ساخته شده 
     sepLabel: 'Separator style',
     keyNone: 'No key set',
     keySet: 'Key is set',
-    keyTemp: 'Temporary key active',
     keyLabel: 'Key / recovery phrase',
     keyPh: '12 or 24 words or custom password',
     btnSaveKey: 'Save key',
     btnCopyKey: 'Copy key',
     btnClearKey: 'Clear',
-    keyHint: 'Key stays in this browser memory only (except temporary bot mode).',
+    keyHint: 'The key stays only in this browser memory and is never sent anywhere. Common separators are accepted on input.',
     genTitle: 'Generate key',
     wordCount: 'Word count',
     w12: '12 words',
     w24: '24 words',
     genLocal: 'Generate offline',
-    genDaily: 'Temporary key (bot)',
     useKey: 'Use this key',
     btnCopy: 'Copy',
     btnClose: 'Close',
@@ -1141,9 +1115,13 @@ function setTheme(theme) {
   const l = document.getElementById('themeLightBtn');
   if (d) d.classList.toggle('active', mode === 'dark');
   if (l) l.classList.toggle('active', mode === 'light');
-  try { applyTelegramLayout();
+}
 
-(function () {
+function initTheme() {
+  setTheme(getStoredTheme());
+}
+
+(function initScanGalleryInput() {
   var g = document.getElementById('scanGalleryInput');
   if (g) g.addEventListener('change', function (e) {
     var f = e.target.files && e.target.files[0];
@@ -1151,84 +1129,6 @@ function setTheme(theme) {
     if (f) handleGalleryQr(f);
   });
 })();
- } catch (_) {}
-
-}
-
-function applyTelegramLayout() {
-  try {
-    if (!(window.Telegram && Telegram.WebApp)) return;
-    var tg = Telegram.WebApp;
-    try { tg.ready(); } catch (_) {}
-    try { tg.expand(); } catch (_) {}
-    // تمام‌صفحه نکن — ✕ می‌افتد روی محتوا. مثل مینی‌اپ‌های استاندارد هدر بیرون بماند.
-    try {
-      if (tg.isFullscreen && tg.exitFullscreen) tg.exitFullscreen();
-      else if (tg.exitFullscreen) tg.exitFullscreen();
-    } catch (_) {}
-
-    document.documentElement.classList.add('in-telegram');
-    var app = document.querySelector('.app');
-    if (app) app.classList.add('in-telegram');
-
-    function readInset(obj, key) {
-      if (!obj) return 0;
-      var v = obj[key];
-      return (typeof v === 'number' && v > 0) ? v : 0;
-    }
-
-    function syncSafeArea() {
-      var safe = tg.safeAreaInset || {};
-      var content = tg.contentSafeAreaInset || {};
-      // contentSafeAreaInset.top = فاصله زیر هدر تلگرام (ضربدر و عنوان)
-      var top = Math.max(readInset(safe, 'top'), readInset(content, 'top'));
-      var bottom = Math.max(readInset(safe, 'bottom'), readInset(content, 'bottom'));
-      var left = Math.max(readInset(safe, 'left'), readInset(content, 'left'));
-      var right = Math.max(readInset(safe, 'right'), readInset(content, 'right'));
-
-      // اگر API مقدار نداد ولی در مینی‌اپیم، حداقل فاصله برای ✕
-      // باز شدن از پروفایل/Open معمولاً هدر بزرگ‌تری دارد
-      // هدر استاندارد تلگرام بیرون از WebView است؛ فقط inset واقعی
-      // اگر هنوز fullscreen بود و ✕ روی صفحه بود، inset معمولاً مقدار می‌دهد
-
-      var root = document.documentElement;
-      root.style.setProperty('--tg-safe-top', top + 'px');
-      root.style.setProperty('--tg-content-top', readInset(content, 'top') + 'px');
-      root.style.setProperty('--tg-safe-bottom', bottom + 'px');
-      // چپ/راست را صفر نگه می‌داریم تا دکمه‌ها به ✕ بچسبند (طبق خواست کاربر)
-      root.style.setProperty('--tg-safe-left', '0px');
-      root.style.setProperty('--tg-safe-right', right + 'px');
-      root.style.setProperty('--tg-controls-pad', '0px');
-    }
-
-    syncSafeArea();
-    try {
-      tg.onEvent('safeAreaChanged', syncSafeArea);
-      tg.onEvent('contentSafeAreaChanged', syncSafeArea);
-      tg.onEvent('viewportChanged', function () {
-        syncSafeArea();
-        try { tg.expand(); } catch (_) {}
-      });
-    } catch (_) {}
-
-    try {
-      var theme = document.documentElement.getAttribute('data-theme') || 'dark';
-      if (theme === 'dark') {
-        if (tg.setHeaderColor) tg.setHeaderColor('#0b141a');
-        if (tg.setBackgroundColor) tg.setBackgroundColor('#0b141a');
-      } else {
-        if (tg.setHeaderColor) tg.setHeaderColor('#e8eef3');
-        if (tg.setBackgroundColor) tg.setBackgroundColor('#e8eef3');
-      }
-    } catch (_) {}
-  } catch (e) {
-    console.warn('tg layout', e);
-  }
-}
-
-function initTheme() {
-  setTheme(getStoredTheme());
-}
 
 function setLang(lang) {
   currentLang = (lang === 'en') ? 'en' : 'fa';
@@ -1506,24 +1406,7 @@ function forceDownloadBlob(blob, filename) {
 }
 
 async function startTelegramOrDeviceScan() {
-  if (isTelegramWebApp()) {
-    try {
-      if (!window._pgQrHooked) {
-        window._pgQrHooked = true;
-        Telegram.WebApp.onEvent('qrTextReceived', function (ev) {
-          try { Telegram.WebApp.closeScanQrPopup(); } catch (_) {}
-          var data = (ev && (ev.data != null ? ev.data : ev)) || '';
-          if (typeof data !== 'string') data = String(data || '');
-          if (data) onQrScanned(data);
-        });
-      }
-      Telegram.WebApp.showScanQrPopup({
-        text: currentLang === 'en' ? 'Scan Phrase Guard QR' : 'QR مربوط به Phrase Guard را اسکن کن'
-      });
-      return;
-    } catch (e) { console.warn(e); }
-  }
-  // مرورگر: دوربین زنده در صورت پشتیبانی
+  // کاملاً آفلاین: فقط دوربین دستگاه / API مرورگر
   await startScanCamera();
 }
 
@@ -1582,12 +1465,6 @@ let _scanBusy = false;
 
 
 
-
-function isTelegramWebApp() {
-  try {
-    return !!(window.Telegram && Telegram.WebApp && Telegram.WebApp.showScanQrPopup);
-  } catch (_) { return false; }
-}
 
 async function openScanOverlay() {
   closeQr();
@@ -2291,10 +2168,13 @@ function maybeShowTgFileTip() {
 }
 
 function isTelegramWebView() {
-  const ua = navigator.userAgent || '';
-  return !!(window.Telegram && window.Telegram.WebApp) ||
-    /Telegram/i.test(ua) ||
-    /WebView/i.test(ua) && /Mobile/i.test(ua);
+  // بدون وابستگی به اسکریپت تلگرام — فقط از User-Agent
+  try {
+    const ua = navigator.userAgent || '';
+    return /Telegram/i.test(ua) || /WebApp|TelegramBot/i.test(ua);
+  } catch (_) {
+    return false;
+  }
 }
 
 async function saveBlob(blob, filename) {
@@ -2667,14 +2547,6 @@ $('msgInput').addEventListener('keydown', e => {
 updateKeyStatus();
 setLang(currentLang);
 setupKeyboardAvoid();
-try {
-  if (window.Telegram && Telegram.WebApp) {
-    Telegram.WebApp.ready();
-    Telegram.WebApp.expand();
-    if (Telegram.WebApp.setHeaderColor) Telegram.WebApp.setHeaderColor('#111b21');
-    if (Telegram.WebApp.setBackgroundColor) Telegram.WebApp.setBackgroundColor('#0b141a');
-  }
-} catch (_) {}
 
 
 
