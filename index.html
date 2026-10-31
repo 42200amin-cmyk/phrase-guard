@@ -167,17 +167,34 @@
     .topbar-btn:active { background: var(--surface2); }
     .topbar-btn.has-key { color: var(--primary); }
     .key-dot {
+      /* هم‌ارتفاع دکمه‌های topbar تا مرکز عمودی جابه‌جا نشود */
+      width: 38px; height: 38px;
+      box-sizing: border-box;
+      flex-shrink: 0;
+      margin: 0;
+      padding: 0;
+      border: none;
+      background: transparent;
+      box-shadow: none;
+      display: grid;
+      place-items: center;
+      position: relative;
+      transition: none;
+    }
+    .key-dot::after {
+      content: '';
       width: 11px; height: 11px; border-radius: 50%;
       background: #e24b4a;
       box-shadow: 0 0 0 3px rgba(226, 75, 74, 0.22);
-      flex-shrink: 0;
-      margin-inline-end: 4px;
       transition: background .2s, box-shadow .2s;
+      /* یک‌کم پایین‌تر برای هم‌ترازی بصری با آیکون‌ها */
+      transform: translateY(2px);
     }
-    .key-dot.on {
+    .key-dot.on::after {
       background: #34d399;
       box-shadow: 0 0 0 3px rgba(52, 211, 153, 0.25);
     }
+
     
     .chat-area {
       min-height: 0;
@@ -901,7 +918,7 @@
       </div>
     </div>
 
-    <p class="hint" style="margin-top:10px;text-align:center;" data-i18n="menuFooter">Phrase Guard • v3.46 • local processing</p>
+    <p class="hint" style="margin-top:10px;text-align:center;" data-i18n="menuFooter">Phrase Guard • v3.48 • local processing</p>
   </div>
 
   <div class="sheet" id="generateSheet">
@@ -955,7 +972,7 @@ const I18N = {
     mClearKeySub: 'از حافظه این دستگاه حذف می‌شود',
     mClearChat: 'پاک کردن تاریخچه',
     mClearChatSub: 'پیام‌های این صفحه حذف می‌شوند',
-    menuFooter: 'Phrase Guard • v3.46 • پردازش محلی',
+    menuFooter: 'Phrase Guard • v3.48 • پردازش محلی',
     welcomeTitle: 'چت امن Phrase Guard',
     welcomeBody: 'پیام عادی بفرست → رمز می‌شود\nپیام رمزشده بفرست → باز می‌شود',
     placeholder: 'پیام عادی یا رمزشده بنویس...',
@@ -1016,7 +1033,7 @@ tempOnlyBot: 'این پیام با کلید موقت ربات ساخته شده 
     mClearKeySub: 'Remove from this device memory',
     mClearChat: 'Clear history',
     mClearChatSub: 'Messages on this screen will be removed',
-    menuFooter: 'Phrase Guard • v3.46 • local processing',
+    menuFooter: 'Phrase Guard • v3.48 • local processing',
     welcomeTitle: 'Secure chat — Phrase Guard',
     welcomeBody: 'Send plain text → encrypts\nSend ciphertext → decrypts',
     placeholder: 'Type plain or encrypted message...',
