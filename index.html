@@ -132,13 +132,18 @@
     .app.in-telegram .topbar {
       padding-left: 6px;
       padding-right: 10px;
-      padding-top: 6px;
+      padding-top: 4px;
       min-height: 44px;
       box-sizing: border-box;
     }
     .app.in-telegram {
-      /* فقط فاصله عمودی از ✕/هدر — دکمه‌ها جابه‌جا به راست نمی‌شوند */
-      padding-top: max(env(safe-area-inset-top, 0px), var(--tg-safe-top), var(--tg-content-top), 28px);
+      /* فاصله زیر ✕ Close — پیش‌فرض 72px (با --pg-tg-top قابل تغییر) */
+      padding-top: max(
+        env(safe-area-inset-top, 0px),
+        var(--tg-safe-top),
+        var(--tg-content-top),
+        var(--pg-tg-top, 72px)
+      ) !important;
     }
     .topbar .logo {
       font-weight: 800;
@@ -897,7 +902,7 @@
       </div>
     </div>
 
-    <p class="hint" style="margin-top:10px;text-align:center;" data-i18n="menuFooter">Phrase Guard • v3.42 • local processing</p>
+    <p class="hint" style="margin-top:10px;text-align:center;" data-i18n="menuFooter">Phrase Guard • v3.44 • local processing</p>
   </div>
 
   <div class="sheet" id="generateSheet">
@@ -951,7 +956,7 @@ const I18N = {
     mClearKeySub: 'از حافظه این دستگاه حذف می‌شود',
     mClearChat: 'پاک کردن تاریخچه',
     mClearChatSub: 'پیام‌های این صفحه حذف می‌شوند',
-    menuFooter: 'Phrase Guard • v3.42 • پردازش محلی',
+    menuFooter: 'Phrase Guard • v3.44 • پردازش محلی',
     welcomeTitle: 'چت امن Phrase Guard',
     welcomeBody: 'پیام عادی بفرست → رمز می‌شود\nپیام رمزشده بفرست → باز می‌شود',
     placeholder: 'پیام عادی یا رمزشده بنویس...',
@@ -979,7 +984,7 @@ const I18N = {
     btnHide: '🙈 مخفی',
     btnQr: '📱 QR',
     btnOpen: '🔓 باز کردن',
-    btnShare: '📤 اشتراک متنی',
+    btnShare: '📤 کپی/اشتراک متنی',
     btnDownload: '⬇️ دانلود',
     decrypted: 'رمزگشایی شد',
     encrypted: 'رمزشده',
@@ -1012,7 +1017,7 @@ tempOnlyBot: 'این پیام با کلید موقت ربات ساخته شده 
     mClearKeySub: 'Remove from this device memory',
     mClearChat: 'Clear history',
     mClearChatSub: 'Messages on this screen will be removed',
-    menuFooter: 'Phrase Guard • v3.42 • local processing',
+    menuFooter: 'Phrase Guard • v3.44 • local processing',
     welcomeTitle: 'Secure chat — Phrase Guard',
     welcomeBody: 'Send plain text → encrypts\nSend ciphertext → decrypts',
     placeholder: 'Type plain or encrypted message...',
@@ -1040,7 +1045,7 @@ tempOnlyBot: 'این پیام با کلید موقت ربات ساخته شده 
     btnHide: '🙈 Hide',
     btnQr: '📱 QR',
     btnOpen: '🔓 Open',
-    btnShare: '📤 Share text',
+    btnShare: '📤 Copy/Share text',
     btnDownload: '⬇️ Download',
     decrypted: 'Decrypted',
     encrypted: 'Encrypted',
@@ -1124,8 +1129,8 @@ function applyTelegramLayout() {
 
       // اگر API مقدار نداد ولی در مینی‌اپیم، حداقل فاصله برای ✕
       // باز شدن از پروفایل/Open معمولاً هدر بزرگ‌تری دارد
-      // حداقل فاصله عمودی از هدر/✕ تلگرام
-      if (top < 28) top = 28;
+      // حداقل فاصله عمودی از هدر/✕ تلگرام (~ یک ردیف دکمه)
+      if (top < 72) top = 72;
       var root = document.documentElement;
       root.style.setProperty('--tg-safe-top', top + 'px');
       root.style.setProperty('--tg-content-top', readInset(content, 'top') + 'px');
