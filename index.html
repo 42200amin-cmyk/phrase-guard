@@ -124,9 +124,13 @@
     .topbar-actions {
       order: 1;
       display: flex;
+      flex-direction: row;
+      flex-wrap: nowrap;
       align-items: center;
+      justify-content: center;
       gap: 2px;
       flex-shrink: 0;
+      height: 38px;
       margin-inline-start: 0;
     }
     .app.in-telegram .topbar {
@@ -160,14 +164,20 @@
       border: none;
       background: transparent;
       color: var(--muted);
-      font-size: 1.15rem;
+      font-size: 1.2rem;
+      line-height: 1;
+      padding: 0;
+      margin: 0;
       cursor: pointer;
-      display: grid; place-items: center;
+      display: inline-grid;
+      place-items: center;
+      flex-shrink: 0;
+      align-self: center;
+      vertical-align: middle;
     }
     .topbar-btn:active { background: var(--surface2); }
     .topbar-btn.has-key { color: var(--primary); }
     .key-dot {
-      /* هم‌ارتفاع دکمه‌های topbar تا مرکز عمودی جابه‌جا نشود */
       width: 38px; height: 38px;
       box-sizing: border-box;
       flex-shrink: 0;
@@ -176,9 +186,10 @@
       border: none;
       background: transparent;
       box-shadow: none;
-      display: grid;
+      display: inline-grid;
       place-items: center;
       position: relative;
+      align-self: center;
       transition: none;
     }
     .key-dot::after {
@@ -187,8 +198,7 @@
       background: #e24b4a;
       box-shadow: 0 0 0 3px rgba(226, 75, 74, 0.22);
       transition: background .2s, box-shadow .2s;
-      /* یک‌کم پایین‌تر برای هم‌ترازی بصری با آیکون‌ها */
-      transform: translateY(2px);
+      transform: none;
     }
     .key-dot.on::after {
       background: #34d399;
@@ -482,6 +492,41 @@
       border-color: var(--accent);
       background: rgba(124,92,252,0.15);
       color: white;
+    }
+    .key-sheet-divider {
+      height: 1px;
+      background: var(--border);
+      margin: 16px 0 14px;
+    }
+    .key-sheet-section-title {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin: 0 0 10px;
+      font-weight: 600;
+    }
+    .sep-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+    .sep-row button {
+      flex: 1;
+      min-width: 52px;
+      padding: 10px 8px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--surface2);
+      color: var(--muted);
+      font-weight: 700;
+      font-size: 0.85rem;
+      cursor: pointer;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    }
+    .sep-row button.active {
+      border-color: var(--accent);
+      background: rgba(124,92,252,0.15);
+      color: var(--text);
     }
     .hint {
       font-size: 0.75rem;
@@ -833,23 +878,52 @@
   <div class="sheet-overlay" id="keyOverlay" onclick="closeSheets()"></div>
   <div class="sheet" id="keySheet">
     <div class="sheet-handle"></div>
-    <h3>کلید رمزنگاری</h3>
+    <h3 data-i18n="keyTitle">کلید رمزنگاری</h3>
     <div class="key-status" id="keyStatus">
       <span class="dot"></span>
       <span id="keyStatusText">کلیدی تنظیم نشده</span>
     </div>
-    <label>کلید / عبارت بازیابی</label>
+
+    <p class="key-sheet-section-title" data-i18n="keyEnterTitle">وارد کردن کلید</p>
+    <label data-i18n="keyLabel">کلید / عبارت بازیابی</label>
     <div class="key-input-wrap">
-      <input type="password" id="keyInput" class="ltr" placeholder="۱۲ یا ۲۴ کلمه یا رمز دلخواه" autocomplete="off" />
+      <input type="password" id="keyInput" class="ltr" placeholder="کلمات با فاصله یا - / % + … یا رمز دلخواه" autocomplete="off" />
       <button type="button" class="eye-btn" id="eyeBtn" onclick="toggleKeyVisibility()" title="نمایش / مخفی">👁</button>
     </div>
     <div class="sheet-actions">
-      <button class="btn-primary" onclick="saveKey()">ذخیره کلید</button>
-      <button class="btn-secondary" onclick="copyCurrentKey()">کپی کلید</button>
-      <button class="btn-secondary" onclick="clearKey()">پاک کردن</button>
+      <button class="btn-primary" onclick="saveKey()" data-i18n="btnSaveKey">ذخیره کلید</button>
+      <button class="btn-secondary" onclick="copyCurrentKey()" data-i18n="btnCopyKey">کپی کلید</button>
+      <button class="btn-secondary" onclick="clearKey()" data-i18n="btnClearKey">پاک کردن</button>
     </div>
-    <p class="hint" style="margin-top:14px;">کلید فقط در حافظه این مرورگر نگه داشته می‌شود و به جایی ارسال نمی‌شود (به جز حالت موقت ربات).</p>
+
+    <div class="key-sheet-divider"></div>
+
+    <p class="key-sheet-section-title" data-i18n="keyGenTitle">ساخت کلید جدید</p>
+    <label data-i18n="wordCount">تعداد کلمات</label>
+    <div class="word-count-row">
+      <button type="button" class="active" data-count="12" onclick="selectCount(12)">۱۲ کلمه</button>
+      <button type="button" data-count="24" onclick="selectCount(24)">۲۴ کلمه</button>
+    </div>
+    <label data-i18n="sepLabel">ظاهر جداکننده</label>
+    <div class="sep-row" id="sepRow">
+      <button type="button" class="active" data-sep="space" onclick="selectSep(' ')">فاصله</button>
+      <button type="button" data-sep="-" onclick="selectSep('-')">-</button>
+      <button type="button" data-sep="/" onclick="selectSep('/')">/</button>
+      <button type="button" data-sep="%" onclick="selectSep('%')">%</button>
+      <button type="button" data-sep="+" onclick="selectSep('+')">+</button>
+    </div>
+    <div class="sheet-actions" style="margin-bottom:10px;">
+      <button type="button" class="btn-primary" onclick="doGenerateLocal()" data-i18n="genLocal">ساخت کلید آفلاین</button>
+    </div>
+    <div class="gen-result" id="genResult"></div>
+    <div class="sheet-actions" id="genActions" style="display:none;">
+      <button type="button" class="btn-success" onclick="useGeneratedKey()" data-i18n="useKey">استفاده از این کلید</button>
+      <button type="button" class="btn-secondary" onclick="copyGeneratedKey()" data-i18n="btnCopy">کپی</button>
+    </div>
+
+    <p class="hint" style="margin-top:14px;" data-i18n="keyHint">کلید فقط در حافظه این مرورگر نگه داشته می‌شود. جداکننده‌های رایج هنگام ورود پذیرفته می‌شوند.</p>
   </div>
+
 
   <div class="sheet" id="menuSheet">
     <div class="sheet-handle"></div>
@@ -859,31 +933,10 @@
       <div class="settings-group-title" data-i18n="grpKey">کلید</div>
       <div class="settings-list">
         <button class="menu-item" onclick="openKeySheet()">
-          <span class="menu-icon">🔒</span>
+          <span class="menu-icon">🔑</span>
           <span class="menu-text">
-            <strong data-i18n="mSetKey">تنظیم / مشاهده کلید</strong>
-            <small data-i18n="mSetKeySub">وارد کردن، ذخیره یا کپی کلید</small>
-          </span>
-        </button>
-        <button class="menu-item" onclick="openGenerateSheet()">
-          <span class="menu-icon">🎲</span>
-          <span class="menu-text">
-            <strong data-i18n="mGenKey">ساخت کلید جدید</strong>
-            <small data-i18n="mGenKeySub">۱۲ یا ۲۴ کلمه • آفلاین یا موقت</small>
-          </span>
-        </button>
-        <button class="menu-item" onclick="copyCurrentKey(); closeSheets();">
-          <span class="menu-icon">📋</span>
-          <span class="menu-text">
-            <strong data-i18n="mCopyKey">کپی کلید فعلی</strong>
-            <small data-i18n="mCopyKeySub">اگر کلیدی تنظیم شده باشد</small>
-          </span>
-        </button>
-        <button class="menu-item" onclick="clearKey(); closeSheets();">
-          <span class="menu-icon">🗑</span>
-          <span class="menu-text">
-            <strong data-i18n="mClearKey">پاک کردن کلید</strong>
-            <small data-i18n="mClearKeySub">از حافظه این دستگاه حذف می‌شود</small>
+            <strong data-i18n="mSetKey">کلید</strong>
+            <small data-i18n="mSetKeySub">وارد کردن، ساخت، کپی یا پاک کردن</small>
           </span>
         </button>
       </div>
@@ -921,24 +974,6 @@
     <p class="hint" style="margin-top:10px;text-align:center;" data-i18n="menuFooter">Phrase Guard • v3.48 • local processing</p>
   </div>
 
-  <div class="sheet" id="generateSheet">
-    <div class="sheet-handle"></div>
-    <h3>ساخت کلید</h3>
-    <label>تعداد کلمات</label>
-    <div class="word-count-row">
-      <button class="active" data-count="12" onclick="selectCount(12)">۱۲ کلمه</button>
-      <button data-count="24" onclick="selectCount(24)">۲۴ کلمه</button>
-    </div>
-    <div class="sheet-actions" style="margin-bottom:10px;">
-      <button class="btn-primary" onclick="doGenerateLocal()">ساخت کلید آفلاین</button>
-    </div>
-    <div class="gen-result" id="genResult"></div>
-    <div class="sheet-actions" id="genActions" style="display:none;">
-      <button class="btn-success" onclick="useGeneratedKey()">استفاده از این کلید</button>
-      <button class="btn-secondary" onclick="copyGeneratedKey()">کپی</button>
-    </div>
-    <p class="hint">کلید آفلاین کاملاً محلی است. کلید موقت روی ربات ثبت می‌شود و بعد از مدتی منقضی می‌گردد.</p>
-  </div>
 
 <script>
 const ITERATIONS = 250000;
@@ -962,8 +997,8 @@ const I18N = {
     grpTheme: 'ظاهر',
     themeDark: 'تاریک',
     themeLight: 'روشن',
-    mSetKey: 'تنظیم / مشاهده کلید',
-    mSetKeySub: 'وارد کردن، ذخیره یا کپی کلید',
+    mSetKey: 'کلید',
+    mSetKeySub: 'وارد کردن، ساخت، کپی یا پاک کردن',
     mGenKey: 'ساخت کلید جدید',
     mGenKeySub: '۱۲ یا ۲۴ کلمه • کاملاً آفلاین',
     mCopyKey: 'کپی کلید فعلی',
@@ -978,6 +1013,9 @@ const I18N = {
     placeholder: 'پیام عادی یا رمزشده بنویس...',
     processing: 'در حال پردازش...',
     keyTitle: 'کلید رمزنگاری',
+    keyEnterTitle: 'وارد کردن کلید',
+    keyGenTitle: 'ساخت کلید جدید',
+    sepLabel: 'ظاهر جداکننده',
     keyNone: 'کلیدی تنظیم نشده',
     keySet: 'کلید تنظیم شده',
     keyTemp: 'کلید موقت فعال',
@@ -1023,8 +1061,8 @@ tempOnlyBot: 'این پیام با کلید موقت ربات ساخته شده 
     grpTheme: 'Appearance',
     themeDark: 'Dark',
     themeLight: 'Light',
-    mSetKey: 'Set / view key',
-    mSetKeySub: 'Enter, save or copy your key',
+    mSetKey: 'Key',
+    mSetKeySub: 'Enter, generate, copy or clear',
     mGenKey: 'Generate new key',
     mGenKeySub: '12 or 24 words • fully offline',
     mCopyKey: 'Copy current key',
@@ -1039,6 +1077,9 @@ tempOnlyBot: 'این پیام با کلید موقت ربات ساخته شده 
     placeholder: 'Type plain or encrypted message...',
     processing: 'Processing...',
     keyTitle: 'Encryption key',
+    keyEnterTitle: 'Enter key',
+    keyGenTitle: 'Generate new key',
+    sepLabel: 'Separator style',
     keyNone: 'No key set',
     keySet: 'Key is set',
     keyTemp: 'Temporary key active',
@@ -1714,7 +1755,10 @@ const WORDLIST = new TextDecoder().decode(Uint8Array.from(atob("YWJhbmRvbiBhYmls
 let currentKey = '';
 let selectedFile = null;
 let wordCount = 12;
-let lastGenerated = '';
+let lastGenerated = ''; // canonical BIP-39 with spaces
+let lastGeneratedDisplay = '';
+let keySep = ' '; // display separator when generating
+
 
 function $(id) { return document.getElementById(id); }
 
@@ -1844,8 +1888,12 @@ async function shareCipherAsText(cipher) {
 
 function openKeySheet() {
   closeSheets();
-  $('keyInput').value = currentKey;
+  try { $('keyInput').value = currentKey || ''; } catch (_) {}
   updateKeyStatus();
+  const gr = $('genResult');
+  const ga = $('genActions');
+  if (gr) gr.classList.remove('show');
+  if (ga) ga.style.display = 'none';
   $('keyOverlay').classList.add('open');
   $('keySheet').classList.add('open');
 }
@@ -1855,11 +1903,7 @@ function openMenuSheet() {
   $('menuSheet').classList.add('open');
 }
 function openGenerateSheet() {
-  closeSheets();
-  $('keyOverlay').classList.add('open');
-  $('generateSheet').classList.add('open');
-  $('genResult').classList.remove('show');
-  $('genActions').style.display = 'none';
+  openKeySheet();
 }
 function closeSheets() {
   document.querySelectorAll('.sheet').forEach(s => s.classList.remove('open'));
@@ -1887,10 +1931,55 @@ function updateKeyStatus() {
   }
 }
 
+
+/** جداکننده‌های قابل‌قبول برای عبارت BIP-39 */
+const KEY_SEP_RE = /[-+:,;/=~#%&]+/g;
+
+/**
+ * ورودی کلید را نرمال می‌کند:
+ * - اگر ۱۲/۲۴ کلمهٔ لاتین با هر جداکننده باشد → فاصله (فرم رسمی BIP-39)
+ * - وگرنه رمز دلخواه: فقط فاصله‌های اضافه یکدست می‌شود
+ */
+function normalizeKeyPhrase(raw) {
+  const s = String(raw || '').trim();
+  if (!s) return '';
+  const asMnemonic = s.replace(KEY_SEP_RE, ' ').replace(/\s+/g, ' ').trim();
+  const parts = asMnemonic.split(' ').filter(Boolean);
+  if ((parts.length === 12 || parts.length === 24) && parts.every(w => /^[a-zA-Z]+$/.test(w))) {
+    return parts.map(w => w.toLowerCase()).join(' ');
+  }
+  return s.replace(/\s+/g, ' ').trim();
+}
+
+function formatKeyPhrase(canonical, sep) {
+  const words = String(canonical || '').trim().split(/\s+/).filter(Boolean);
+  if (!words.length) return '';
+  if (!sep || sep === ' ') return words.join(' ');
+  return words.join(sep);
+}
+
+function selectSep(sep) {
+  keySep = (sep === undefined || sep === null || sep === 'space') ? ' ' : String(sep);
+  document.querySelectorAll('#sepRow button').forEach(b => {
+    const ds = b.getAttribute('data-sep');
+    const active = (keySep === ' ' && ds === 'space') || (ds === keySep);
+    b.classList.toggle('active', active);
+  });
+  // refresh display if already generated
+  if (lastGenerated) {
+    lastGeneratedDisplay = formatKeyPhrase(lastGenerated, keySep);
+    const gr = $('genResult');
+    if (gr) gr.textContent = lastGeneratedDisplay;
+  }
+}
+
+
 function saveKey() {
-  const val = $('keyInput').value.trim();
+  const val = normalizeKeyPhrase($('keyInput').value);
   if (!val) { alert(t('enterKey')); return; }
   currentKey = val;
+  // نمایش در اینپوت همیشه فرم رسمی
+  try { $('keyInput').value = currentKey; } catch (_) {}
   updateKeyStatus();
   closeSheets();
   resumePendingQrIfAny();
@@ -2028,7 +2117,8 @@ async function doGenerateLocal() {
   try {
     const words = await generateBip39Words(wordCount);
     lastGenerated = words.join(' ');
-    $('genResult').textContent = lastGenerated;
+    lastGeneratedDisplay = formatKeyPhrase(lastGenerated, keySep);
+    $('genResult').textContent = lastGeneratedDisplay;
     $('genResult').classList.add('show');
     $('genActions').style.display = 'flex';
   } catch (e) {
@@ -2038,14 +2128,18 @@ async function doGenerateLocal() {
 
 function useGeneratedKey() {
   if (!lastGenerated) return;
-  currentKey = lastGenerated;
+  currentKey = lastGenerated; // always canonical spaces for crypto
+  try {
+    if ($('keyInput')) $('keyInput').value = currentKey;
+  } catch (_) {}
   updateKeyStatus();
   closeSheets();
   resumePendingQrIfAny();
 }
 function copyGeneratedKey() {
   if (!lastGenerated) return;
-  navigator.clipboard.writeText(lastGenerated).then(() => alert('کپی شد')).catch(() => {});
+  const out = lastGeneratedDisplay || lastGenerated;
+  navigator.clipboard.writeText(out).then(() => alert('کپی شد')).catch(() => {});
 }
 
 
