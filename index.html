@@ -797,7 +797,7 @@
 
     <div class="composer-wrap">
       <div class="tg-tip" id="tgFileTip">
-        <span>برای فایل و عکس، ترجیحاً از مرورگر معمولی استفاده کن؛ دانلود در مرورگر داخلی تلگرام محدود است.</span>
+        <span>دانلود فایل در مرورگر داخلی تلگرام محدود است؛ برای فایل و عکس بهتر است Phrase Guard را در کروم باز کنی.</span>
         <button type="button" onclick="dismissTgFileTip()" title="بستن">✕</button>
       </div>
       <div class="file-chip" id="fileChip">
@@ -901,7 +901,7 @@
       </div>
     </div>
 
-    <p class="hint" style="margin-top:10px;text-align:center;" data-i18n="menuFooter">Phrase Guard • v3.45 • local processing</p>
+    <p class="hint" style="margin-top:10px;text-align:center;" data-i18n="menuFooter">Phrase Guard • v3.46 • local processing</p>
   </div>
 
   <div class="sheet" id="generateSheet">
@@ -955,7 +955,7 @@ const I18N = {
     mClearKeySub: 'از حافظه این دستگاه حذف می‌شود',
     mClearChat: 'پاک کردن تاریخچه',
     mClearChatSub: 'پیام‌های این صفحه حذف می‌شوند',
-    menuFooter: 'Phrase Guard • v3.45 • پردازش محلی',
+    menuFooter: 'Phrase Guard • v3.46 • پردازش محلی',
     welcomeTitle: 'چت امن Phrase Guard',
     welcomeBody: 'پیام عادی بفرست → رمز می‌شود\nپیام رمزشده بفرست → باز می‌شود',
     placeholder: 'پیام عادی یا رمزشده بنویس...',
@@ -1016,7 +1016,7 @@ tempOnlyBot: 'این پیام با کلید موقت ربات ساخته شده 
     mClearKeySub: 'Remove from this device memory',
     mClearChat: 'Clear history',
     mClearChatSub: 'Messages on this screen will be removed',
-    menuFooter: 'Phrase Guard • v3.45 • local processing',
+    menuFooter: 'Phrase Guard • v3.46 • local processing',
     welcomeTitle: 'Secure chat — Phrase Guard',
     welcomeBody: 'Send plain text → encrypts\nSend ciphertext → decrypts',
     placeholder: 'Type plain or encrypted message...',
@@ -2218,10 +2218,9 @@ async function saveBlob(blob, filename) {
     a.click();
     setTimeout(() => {
       alert(
-        'اگر فایل ذخیره نشد:\n' +
-        '• روی دکمه دانلود لمس طولانی کن → Save / دانلود\n' +
-        '• یا از منوی ⋮ مرورگر تلگرام «Open in browser» را بزن\n' +
-        '• یا متن را کپی کن و در یک فایل ذخیره کن'
+        currentLang === 'en'
+          ? 'File download is often unreliable in Telegram’s in-app browser.\n\nFor files and photos, open Phrase Guard in Chrome (or another full browser) and download there.'
+          : 'دانلود فایل در مرورگر داخلی تلگرام معمولاً ناپایدار است.\n\nبرای فایل و عکس، Phrase Guard را در مرورگر کروم (یا یک مرورگر کامل دیگر) باز کن و از آنجا دانلود بگیر.'
       );
     }, 400);
   } else {
