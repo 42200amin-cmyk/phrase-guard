@@ -11,6 +11,11 @@
   <style>
     :root, :root[data-theme="dark"] {
       color-scheme: dark;
+      --tg-safe-top: 0px;
+      --tg-safe-bottom: 0px;
+      --tg-safe-left: 0px;
+      --tg-safe-right: 0px;
+      --tg-content-top: 0px;
       --bg: #0b141a;
       --surface: #111b21;
       --surface2: #1f2c34;
@@ -85,6 +90,23 @@
       max-height: 100dvh;
       background: var(--bg);
       overflow: hidden;
+      /* فاصله از هدر/ضربدر مینی‌اپ تلگرام */
+      padding-top: max(env(safe-area-inset-top, 0px), var(--tg-safe-top), var(--tg-content-top));
+      padding-bottom: max(env(safe-area-inset-bottom, 0px), var(--tg-safe-bottom));
+      padding-left: max(env(safe-area-inset-left, 0px), var(--tg-safe-left));
+      padding-right: max(env(safe-area-inset-right, 0px), var(--tg-safe-right));
+      box-sizing: border-box;
+    }
+    .app.in-telegram .topbar {
+      /* ✕ تلگرام همیشه سمت چپ فیزیکی است؛ در RTL دکمه‌های ما هم چپ می‌آیند */
+      padding-left: max(12px, calc(var(--tg-controls-pad, 52px) + 8px));
+      padding-right: 12px;
+      min-height: 48px;
+      box-sizing: border-box;
+    }
+    .app.in-telegram .topbar .logo {
+      /* لوگو فضا را وسط/راست نگه دارد تا روی ✕ نرود */
+      margin-right: auto;
     }
 
     .topbar {
@@ -852,7 +874,7 @@
       </div>
     </div>
 
-    <p class="hint" style="margin-top:10px;text-align:center;" data-i18n="menuFooter">Phrase Guard • v3.38 • local processing</p>
+    <p class="hint" style="margin-top:10px;text-align:center;" data-i18n="menuFooter">Phrase Guard • v3.39 • local processing</p>
   </div>
 
   <div class="sheet" id="generateSheet">
@@ -906,7 +928,7 @@ const I18N = {
     mClearKeySub: 'از حافظه این دستگاه حذف می‌شود',
     mClearChat: 'پاک کردن تاریخچه',
     mClearChatSub: 'پیام‌های این صفحه حذف می‌شوند',
-    menuFooter: 'Phrase Guard • v3.38 • پردازش محلی',
+    menuFooter: 'Phrase Guard • v3.39 • پردازش محلی',
     welcomeTitle: 'چت امن Phrase Guard',
     welcomeBody: 'پیام عادی بفرست → رمز می‌شود\nپیام رمزشده بفرست → باز می‌شود',
     placeholder: 'پیام عادی یا رمزشده بنویس...',
@@ -967,7 +989,7 @@ tempOnlyBot: 'این پیام با کلید موقت ربات ساخته شده 
     mClearKeySub: 'Remove from this device memory',
     mClearChat: 'Clear history',
     mClearChatSub: 'Messages on this screen will be removed',
-    menuFooter: 'Phrase Guard • v3.38 • local processing',
+    menuFooter: 'Phrase Guard • v3.39 • local processing',
     welcomeTitle: 'Secure chat — Phrase Guard',
     welcomeBody: 'Send plain text → encrypts\nSend ciphertext → decrypts',
     placeholder: 'Type plain or encrypted message...',
@@ -1034,18 +1056,80 @@ function setTheme(theme) {
   const l = document.getElementById('themeLightBtn');
   if (d) d.classList.toggle('active', mode === 'dark');
   if (l) l.classList.toggle('active', mode === 'light');
-  try {
-    if (window.Telegram && Telegram.WebApp) {
-      if (mode === 'dark') {
-        if (Telegram.WebApp.setHeaderColor) Telegram.WebApp.setHeaderColor('#111b21');
-        if (Telegram.WebApp.setBackgroundColor) Telegram.WebApp.setBackgroundColor('#0b141a');
-      } else {
-        if (Telegram.WebApp.setHeaderColor) Telegram.WebApp.setHeaderColor('#ffffff');
-        if (Telegram.WebApp.setBackgroundColor) Telegram.WebApp.setBackgroundColor('#e8eef3');
-      }
-    }
-  } catch (_) {}
+  try { applyTelegramLayout(); } catch (_) {}
+
 }
+
+function applyTelegramLayout() {
+  try {
+    if (!(window.Telegram && Telegram.WebApp)) return;
+    var tg = Telegram.WebApp;
+    try { tg.ready(); } catch (_) {}
+    try { tg.expand(); } catch (_) {}
+    try {
+      if (tg.requestFullscreen) tg.requestFullscreen();
+    } catch (_) {}
+
+    document.documentElement.classList.add('in-telegram');
+    var app = document.querySelector('.app');
+    if (app) app.classList.add('in-telegram');
+
+    function readInset(obj, key) {
+      if (!obj) return 0;
+      var v = obj[key];
+      return (typeof v === 'number' && v > 0) ? v : 0;
+    }
+
+    function syncSafeArea() {
+      var safe = tg.safeAreaInset || {};
+      var content = tg.contentSafeAreaInset || {};
+      // contentSafeAreaInset.top = فاصله زیر هدر تلگرام (ضربدر و عنوان)
+      var top = Math.max(readInset(safe, 'top'), readInset(content, 'top'));
+      var bottom = Math.max(readInset(safe, 'bottom'), readInset(content, 'bottom'));
+      var left = Math.max(readInset(safe, 'left'), readInset(content, 'left'));
+      var right = Math.max(readInset(safe, 'right'), readInset(content, 'right'));
+
+      // اگر API مقدار نداد ولی در مینی‌اپیم، حداقل فاصله برای ✕
+      // باز شدن از پروفایل/Open معمولاً هدر بزرگ‌تری دارد
+      if (top < 8) top = 0; // env(safe-area) may still help
+      // فضای افقی برای دکمه بستن (سمت چپ UI تلگرام)
+      var controlsPad = Math.max(left, right, 0);
+      if (controlsPad < 4) controlsPad = 52; // ≈ عرض دکمه ✕ + حاشیه
+
+      var root = document.documentElement;
+      root.style.setProperty('--tg-safe-top', top + 'px');
+      root.style.setProperty('--tg-content-top', readInset(content, 'top') + 'px');
+      root.style.setProperty('--tg-safe-bottom', bottom + 'px');
+      root.style.setProperty('--tg-safe-left', left + 'px');
+      root.style.setProperty('--tg-safe-right', right + 'px');
+      root.style.setProperty('--tg-controls-pad', controlsPad + 'px');
+    }
+
+    syncSafeArea();
+    try {
+      tg.onEvent('safeAreaChanged', syncSafeArea);
+      tg.onEvent('contentSafeAreaChanged', syncSafeArea);
+      tg.onEvent('viewportChanged', function () {
+        syncSafeArea();
+        try { tg.expand(); } catch (_) {}
+      });
+    } catch (_) {}
+
+    try {
+      var theme = document.documentElement.getAttribute('data-theme') || 'dark';
+      if (theme === 'dark') {
+        if (tg.setHeaderColor) tg.setHeaderColor('#0b141a');
+        if (tg.setBackgroundColor) tg.setBackgroundColor('#0b141a');
+      } else {
+        if (tg.setHeaderColor) tg.setHeaderColor('#e8eef3');
+        if (tg.setBackgroundColor) tg.setBackgroundColor('#e8eef3');
+      }
+    } catch (_) {}
+  } catch (e) {
+    console.warn('tg layout', e);
+  }
+}
+
 function initTheme() {
   setTheme(getStoredTheme());
 }
